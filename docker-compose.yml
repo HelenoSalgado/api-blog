@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  dbamei:
+    image: postgres
+    container_name: db-admin-blog
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    volumes:
+      - /home/heleno/postgres/admin-blog:/var/lib/postgresql/data
