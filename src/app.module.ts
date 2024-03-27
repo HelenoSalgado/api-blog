@@ -17,6 +17,10 @@ import { CategoryModule } from './modules/category/category.module';
 import { CategoryController } from './modules/category/category.controller';
 import { CategoryService } from './modules/category/category.service';
 import { CategoryRepository } from './modules/category/category.repository';
+import { CollectionModule } from './modules/collection/collection.module';
+import { CollectionController } from './modules/collection/collection.controller';
+import { CollectionService } from './modules/collection/collection.service';
+import { CollectionRepository } from './modules/collection/collection.repository';
 
 @Module({
   imports: [
@@ -25,6 +29,7 @@ import { CategoryRepository } from './modules/category/category.repository';
     ProfileModule, 
     PostModule, 
     CategoryModule,
+    CollectionModule,
     CacheModule.register({
       isGlobal: true
     })
@@ -33,17 +38,20 @@ import { CategoryRepository } from './modules/category/category.repository';
     UserController, 
     ProfileController, 
     PostController,
-    CategoryController
+    CategoryController,
+    CollectionController
   ],
   providers: [
     UserService, 
     ProfileService,
     PostService,
     CategoryService,
+    CollectionService,
     UserRepository, 
     ProfileRepository,
     PostRepository,
-    CategoryRepository
+    CategoryRepository,
+    CollectionRepository
   ],
 })
 export class AppModule {}

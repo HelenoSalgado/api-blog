@@ -7,36 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id           Int       @id @default(autoincrement())
-  name         String    @unique @db.VarChar(255)
-  description  String?
-  published    Boolean   @default(false) 
-  posts        Post[]
-}
-
-model Collection {
-  id           Int       @id @default(autoincrement())
-  title        String?   @db.VarChar(255)
-  imgUrl       String?   @db.VarChar(255)
-  author       String?   @db.VarChar(255)
-  slug         String?   @db.VarChar(255)
-  published    Boolean   @default(false)
-}
-
-model Post {
-  id             Int          @id @default(autoincrement())
-  title          String       @db.VarChar(255)
-  description    String?
-  content        String
-  imgUrl         String       @db.VarChar(255)
-  slug           String       @unique @db.VarChar(255)
-  published      Boolean      @default(false)
-  afterPost      String?      @db.VarChar(255)
-  beforePost     String?      @db.VarChar(255)
-  categories     Category[]  
-  profileId      Int
-  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+model User {
+  id                   Int       @id @default(autoincrement())
+  name                 String?   @db.VarChar(255)
+  username             String    @db.VarChar(255)
+  email                String    @unique @db.VarChar(255)
+  provider             String?   @db.VarChar(255)
+  password             String    @db.VarChar(255)
+  resetPasswordToken   String?   @db.VarChar(255)
+  confirmationToken    String?   @db.VarChar(255)
+  confirmed            Boolean   @default(false)
+  blocked              Boolean   @default(false)
+  jobTitle             String?   @db.VarChar(255)
+  profile              Profile?
 }
 
 model Profile {
@@ -52,6 +35,41 @@ model Profile {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Post {
+  id             Int          @id @default(autoincrement())
+  title          String       @db.VarChar(255)
+  description    String?
+  content        String
+  imgUrl         String       @db.VarChar(255)
+  slug           String       @unique @db.VarChar(255)
+  published      Boolean      @default(false)
+  afterPost      String?      @db.VarChar(255)
+  beforePost     String?      @db.VarChar(255)
+  categories     Category[]
+  collectionId   Int?
+  collection     Collection?  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  profileId      Int
+  profile        Profile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique @db.VarChar(255)
+  description  String?
+  published    Boolean   @default(false) 
+  posts        Post[]
+}
+
+model Collection {
+  id           Int       @id @default(autoincrement())
+  title        String    @db.VarChar(255)
+  imgUrl       String    @db.VarChar(255)
+  author       String    @db.VarChar(255)
+  slug         String    @unique @db.VarChar(255)
+  posts        Post[]
+  published    Boolean   @default(false)
+}
+
 model Webhook {
   id      Int      @id @default(autoincrement())
   name    String   @db.VarChar(255)
@@ -59,19 +77,4 @@ model Webhook {
   headers Json?
   events  Json?
   enabled Boolean @default(false)
-}
-
-model User {
-  id                   Int       @id @default(autoincrement())
-  name                 String?   @db.VarChar(255)
-  username             String    @db.VarChar(255)
-  email                String    @unique @db.VarChar(255)
-  provider             String?   @db.VarChar(255)
-  password             String    @db.VarChar(255)
-  resetPasswordToken   String?   @db.VarChar(255)
-  confirmationToken    String?   @db.VarChar(255)
-  confirmed            Boolean   @default(false)
-  blocked              Boolean   @default(false)
-  jobTitle             String?   @db.VarChar(255)
-  profile              Profile?
 }

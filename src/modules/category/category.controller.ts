@@ -16,9 +16,7 @@ export class CategoryController {
   @Get()
   async findAll() {
     const categories = await this.categoryService.findAll();
-
-    //if(posts.length == 0) throw new NotFoundException(msg.postsNotExist);
-  
+    if(!categories) throw new NotFoundException(msg.postsNotExist);
     return categories;
   }
 
