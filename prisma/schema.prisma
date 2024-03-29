@@ -21,20 +21,32 @@ model User {
   blocked            Boolean   @default(false)
   jobTitle           String?   @db.VarChar(64)
   profile            Profile?
+  createdAt          DateTime  @default(now())
   inGroup            InGroup[]
 }
 
 model Profile {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(255)
+  avatarUrl   String?       @db.VarChar(255)
+  imgUrl      String?       @db.VarChar(255)
+  biograpy    String?
+  slug        String        @unique @db.VarChar(255)
+  published   Boolean       @default(true)
+  userId      Int           @unique
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  posts       Post[]
+  socialMedia SocialMedia[]
+}
+
+model SocialMedia {
   id        Int     @id @default(autoincrement())
-  name      String  @db.VarChar(255)
-  avatarUrl String? @db.VarChar(255)
-  imgUrl    String? @db.VarChar(255)
-  biograpy  String?
-  slug      String  @unique @db.VarChar(255)
-  published Boolean @default(true)
-  posts     Post[]
-  userId    Int     @unique
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String  @db.VarChar(64)
+  acessLink String  @db.VarChar(255)
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Post {
@@ -47,47 +59,57 @@ model Post {
   published    Boolean     @default(false)
   afterPost    String?     @db.VarChar(255)
   beforePost   String?     @db.VarChar(255)
-  categories   Category[]
   collectionId Int?
   collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   profileId    Int
   profile      Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  categories   Category[]
 }
 
 model Category {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique @db.VarChar(255)
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(255)
   description String?
-  published   Boolean @default(false)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   posts       Post[]
 }
 
 model Collection {
-  id        Int     @id @default(autoincrement())
-  title     String  @db.VarChar(255)
-  imgUrl    String  @db.VarChar(255)
-  author    String  @db.VarChar(255)
-  slug      String  @unique @db.VarChar(255)
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255)
+  imgUrl    String   @db.VarChar(255)
+  author    String   @db.VarChar(255)
+  slug      String   @unique @db.VarChar(255)
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   posts     Post[]
-  published Boolean @default(false)
 }
 
 model Webhook {
-  id      Int     @id @default(autoincrement())
-  name    String  @db.VarChar(255)
-  url     String
-  headers Json?
-  events  Json?
-  enabled Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  url       String
+  headers   Json?
+  events    Json?
+  enabled   Boolean  @default(false)
+  createdAt DateTime @db.Timestamp()
+  updatedAt DateTime @updatedAt
 }
 
 model UserGroup {
-  id                  Int           @id @default(autoincrement())
-  customerInvoiceData String        @db.Text
+  id                  Int            @id @default(autoincrement())
+  customerInvoiceData String         @db.Text
   userGroupTypeId     Int
-  userGroupType       UserGroupType @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  userGroupType       UserGroupType  @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  createdAt           DateTime       @db.Timestamp()
+  updatedAt           DateTime       @updatedAt
   InGroup             InGroup[]
-  createdAt           DateTime      @db.Timestamp()
+  Subscription        Subscription[]
 }
 
 model InGroup {
@@ -131,6 +153,8 @@ model Plan {
   prerequisite    Prerequisite[]
   createdAt       DateTime         @db.Timestamp()
   isActive        Boolean          @default(false)
+  PlanHistory     PlanHistory[]
+  Subscription    Subscription[]
 }
 
 model Option {
@@ -158,23 +182,72 @@ model Include {
 }
 
 model Offer {
-  id                 Int      @id @default(autoincrement())
-  name               String   @db.VarChar(255)
-  startDate          DateTime @db.Date
-  endDate            DateTime @db.Date
-  description        String   @db.Text
-  discountAmount     Decimal  @db.Decimal()
-  discountPercentage Decimal  @db.Decimal()
+  id                 Int            @id @default(autoincrement())
+  name               String         @db.VarChar(255)
+  startDate          DateTime       @db.Date
+  endDate            DateTime       @db.Date
+  description        String         @db.Text
+  discountAmount     Decimal        @db.Decimal()
+  discountPercentage Decimal        @db.Decimal()
   durationMonths     Int
-  durationEndDate    DateTime @db.Date
+  durationEndDate    DateTime       @db.Date
   include            Include[]
   prerequisite       Prerequisite[]
 }
 
-model Prerequisite{
-  id                 Int      @id @default(autoincrement())
+model Prerequisite {
+  id      Int   @id @default(autoincrement())
   offerId Int
   offer   Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
   planId  Int
   plan    Plan  @relation(fields: [planId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id             Int          @id @default(autoincrement())
+  customerData   String       @db.Text
+  subscriptionId Int
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  planHistoryId  Int
+  planHistory    PlanHistory  @relation(fields: [planHistoryId], references: [id], onDelete: Cascade)
+  startDate      DateTime     @db.Date
+  endDate        DateTime     @db.Date
+  description    String       @db.VarChar(255)
+  amount         Decimal      @db.Decimal()
+  createdAt      DateTime     @db.Timestamp()
+  due            DateTime     @db.Timestamp()
+  paid           DateTime     @db.Timestamp()
+}
+
+model PlanHistory {
+  id             Int          @id @default(autoincrement())
+  subscriptionId Int
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  planId         Int
+  plan           Plan         @relation(fields: [planId], references: [id], onDelete: Cascade)
+  startDate      DateTime     @db.Date
+  endDate        DateTime     @db.Date
+  createdAt      DateTime     @db.Timestamp()
+  Invoice        Invoice[]
+}
+
+model Subscription {
+  id               Int           @id @default(autoincrement())
+  userGroupId      Int
+  userGroup        UserGroup     @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
+  startDate        DateTime      @db.Date
+  endDate          DateTime      @db.Date
+  subscribe        Boolean       @default(false)
+  planId           Int
+  plan             Plan          @relation(fields: [planId], references: [id], onDelete: Cascade)
+  ofterId          Int
+  ofterStartDate   DateTime      @db.Date
+  ofterEndDate     DateTime      @db.Date
+  dateSubscribed   DateTime      @db.Date
+  dateUnsubscribed DateTime      @db.Date
+  validUntil       DateTime      @db.Date
+  createdAt        DateTime      @db.Timestamp()
+  updatedAt        DateTime      @updatedAt
+  Invoice          Invoice[]
+  PlanHistory      PlanHistory[]
 }
