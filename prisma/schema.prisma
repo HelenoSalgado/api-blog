@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Schema Blog
 model User {
   id                 Int       @id @default(autoincrement())
   firstName          String?   @db.VarChar(64)
@@ -90,6 +91,7 @@ model Collection {
   posts     Post[]
 }
 
+// Service General Hooks
 model Webhook {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(255)
@@ -101,11 +103,12 @@ model Webhook {
   updatedAt DateTime @updatedAt
 }
 
-model UserGroup {
+// Service Busines
+model Group {
   id                  Int            @id @default(autoincrement())
   customerInvoiceData String         @db.Text
-  userGroupTypeId     Int
-  userGroupType       UserGroupType  @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  groupTypeId         Int
+  groupType           GroupType      @relation(fields: [groupTypeId], references: [id], onDelete: Cascade)
   createdAt           DateTime       @db.Timestamp()
   updatedAt           DateTime       @updatedAt
   InGroup             InGroup[]
@@ -113,48 +116,52 @@ model UserGroup {
 }
 
 model InGroup {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userGroupId Int
-  userGroup   UserGroup @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
-  updatedAt   DateTime  @updatedAt()
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId   Int
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt()
 }
 
-model UserGroupType {
-  id         Int         @id @default(autoincrement())
-  typeName   String      @db.VarChar(128)
-  membersMin Int
-  membersMax Int
-  userGroup  UserGroup[]
-  Software   Software[]
-  Plan       Plan[]
+model GroupType {
+  id             Int                 @id @default(autoincrement())
+  name           String              @db.VarChar(128)
+  membersMin     Int
+  membersMax     Int
+  group          Group[]
+  Software       Software[]
+  Plan           Plan[]
+  Sale           Sale[]
+  productSale    ProductSale?
+  serviceSale    ServiceSale?
+  oneServiceSale OneTimeServiceSale?
 }
 
 model Software {
-  id            Int             @id @default(autoincrement())
-  name          String          @db.VarChar(255)
-  details       String          @db.Text
-  acessLink     String          @db.VarChar(255)
-  plan          Plan[]
-  userGroupType UserGroupType[]
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar(255)
+  details   String      @db.Text
+  acessLink String      @db.VarChar(255)
+  plan      Plan[]
+  groupType GroupType[]
 }
 
 model Plan {
-  id              Int              @id @default(autoincrement())
-  name            String           @db.VarChar(255)
-  currentPrice    Decimal          @db.Decimal()
-  softwareId      Int
-  software        Software         @relation(fields: [softwareId], references: [id], onDelete: Cascade)
-  userGroupTypeId Int
-  userGroupType   UserGroupType    @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
-  optionIncluded  OptionIncluded[]
-  include         Include[]
-  prerequisite    Prerequisite[]
-  createdAt       DateTime         @db.Timestamp()
-  isActive        Boolean          @default(false)
-  PlanHistory     PlanHistory[]
-  Subscription    Subscription[]
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  currentPrice   Decimal          @db.Decimal()
+  softwareId     Int
+  software       Software         @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+  groupTypeId    Int
+  groupType      GroupType        @relation(fields: [groupTypeId], references: [id], onDelete: Cascade)
+  optionIncluded OptionIncluded[]
+  include        Include[]
+  prerequisite   Prerequisite[]
+  createdAt      DateTime         @db.Timestamp()
+  active         Boolean          @default(false)
+  PlanHistory    PlanHistory[]
+  Subscription   Subscription[]
 }
 
 model Option {
@@ -233,8 +240,8 @@ model PlanHistory {
 
 model Subscription {
   id               Int           @id @default(autoincrement())
-  userGroupId      Int
-  userGroup        UserGroup     @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
+  groupId          Int
+  group            Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
   startDate        DateTime      @db.Date
   endDate          DateTime      @db.Date
   subscribe        Boolean       @default(false)
@@ -250,4 +257,202 @@ model Subscription {
   updatedAt        DateTime      @updatedAt
   Invoice          Invoice[]
   PlanHistory      PlanHistory[]
+}
+
+// Service Product or Service
+model Sale {
+  id              Int                  @id @default(autoincrement())
+  timeCreated     DateTime             @db.Timestamp()
+  timePaid        DateTime             @db.Timestamp()
+  amount          Decimal              @db.Decimal()
+  amountPaid      Decimal              @db.Decimal()
+  taxAmount       Decimal              @db.Decimal()
+  statusId        Int
+  status          SaleStatus           @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  userGroupTypeId Int
+  userGroupType   GroupType            @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  productSale     ProductSale[]
+  serviceSale     ServiceSale[]
+  OneServiceSale  OneTimeServiceSale[]
+}
+
+model SaleStatus {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
+  sale Sale[]
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  priceUnit     Decimal       @db.Decimal()
+  basicUnit     String        @db.VarChar(255)
+  taxPercentage Decimal       @db.Decimal()
+  limited       Boolean       @default(true)
+  active        Boolean       @default(true)
+  productSale   ProductSale[]
+  stock         Stock?
+}
+
+model ProductSale {
+  id              Int        @id @default(autoincrement())
+  quantitySold    Decimal    @db.Decimal()
+  priceUnit       Decimal    @db.Decimal()
+  price           Decimal    @db.Decimal()
+  taxAmount       Decimal    @db.Decimal()
+  limited         Boolean    @default(true)
+  active          Boolean    @default(true)
+  userGroupTypeId Int        @unique
+  userGroupType   GroupType  @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  saleId          Int
+  sale            Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId       Int
+  product         Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Shipment        Shipment[]
+}
+
+model Stock {
+  id        Int      @id @default(autoincrement())
+  inStock   Decimal  @db.Decimal()
+  productId Int      @unique
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  priceUnit     Decimal       @db.Decimal()
+  basicUnit     String        @db.VarChar(255)
+  taxPercentage Decimal       @db.Decimal()
+  active        Boolean       @default(true)
+  period        Int
+  serviceSale   ServiceSale[]
+}
+
+model ServiceSale {
+  id              Int       @id @default(autoincrement())
+  quantitySold    Decimal   @db.Decimal()
+  priceUnit       Decimal   @db.Decimal()
+  price           Decimal   @db.Decimal()
+  taxAmount       Decimal   @db.Decimal()
+  renove          Boolean   @default(true)
+  period          Int
+  startTime       DateTime  @db.Timestamp()
+  endTime         DateTime? @db.Timestamp()
+  userGroupTypeId Int       @unique
+  userGroupType   GroupType @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  saleId          Int
+  sale            Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  serviceId       Int
+  service         Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model OneTimeService {
+  id            Int                  @id @default(autoincrement())
+  name          String               @db.VarChar(255)
+  price         Decimal              @db.Decimal()
+  taxPercentage Decimal              @db.Decimal()
+  active        Boolean              @default(true)
+  serviceSale   OneTimeServiceSale[]
+}
+
+model OneTimeServiceSale {
+  id              Int            @id @default(autoincrement())
+  name            String         @db.VarChar(255)
+  price           Decimal        @db.Decimal()
+  taxAmount       Decimal        @db.Decimal()
+  userGroupTypeId Int            @unique
+  userGroupType   GroupType      @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
+  saleId          Int
+  sale            Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  serviceId       Int
+  service         OneTimeService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+// Client and Locals
+model Country {
+  id    Int     @id @default(autoincrement())
+  name  String  @db.VarChar(64)
+  code  Int
+  state State[]
+}
+
+model State {
+  id        Int     @id @default(autoincrement())
+  countryId Int
+  country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  city      City[]
+}
+
+model City {
+  id      Int      @id @default(autoincrement())
+  stateId Int
+  state   State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  client  Client[]
+}
+
+model Client {
+  id        Int        @id @default(autoincrement())
+  firstName String     @db.VarChar(100)
+  lastName  String     @db.VarChar(100)
+  company   String?    @db.VarChar(255)
+  VAT_ID    String?    @db.VarChar(60)
+  cityId    Int
+  city      City       @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  address   Address[]
+  Shipment  Shipment[]
+}
+
+model Address {
+  id       Int        @id @default(autoincrement())
+  state    String     @db.VarChar(100)
+  zipCode  Int
+  street   String     @db.VarChar(255)
+  number   Int
+  district String     @db.VarChar(100)
+  clientId Int
+  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Shipment Shipment[]
+}
+
+// Details from shipments
+
+model Shipment {
+  id             Int              @id @default(autoincrement())
+  productSaleId  Int
+  producSale     ProductSale      @relation(fields: [productSaleId], references: [id], onDelete: Cascade)
+  addressId      Int
+  address        Address          @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  paymentTypeId  Int
+  paymentType    PaymentType      @relation(fields: [paymentTypeId], references: [id], onDelete: Cascade)
+  clientId       Int
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  shipmentTypeId Int
+  shipmentType   ShipmentType     @relation(fields: [shipmentTypeId], references: [id], onDelete: Cascade)
+  createdAt      DateTime         @db.Timestamp()
+  ShipmentStatus ShipmentStatus[]
+}
+
+model ShipmentType {
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(64)
+  Shipment Shipment[]
+}
+
+model ShipmentStatus {
+  id         Int      @id @default(autoincrement())
+  shipmentId Int
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+}
+
+model StatusCatalog {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
+}
+
+model PaymentType {
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(64)
+  shipment Shipment[]
 }
