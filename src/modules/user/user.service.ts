@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import type { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserRepository } from './user.repository';
 import { msg } from 'src/constants/msgUser';
@@ -12,7 +12,7 @@ export class UserService {
 
     const userExist = await this.repository.findEmail(createUser.email);
 
-    if(userExist) return { message: msg.userExist, statusCode: 200 };
+    if(userExist) throw new HttpException("Usuário já existe", 409);
 
     return await this.repository.create(createUser);
 

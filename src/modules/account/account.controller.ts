@@ -8,18 +8,18 @@ import {
   Put, 
   NotFoundException 
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { AccountService } from './account.service';
 import { msg } from 'src/constants/msgUser';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateAccountDto, UpdateAccountDto } from './account.dto';
 
-@Controller('users')
-export class UserController {
+@Controller('account')
+export class AccountController {
 
-  constructor(private readonly usersService: UserService) {}
+  constructor(private readonly usersService: AccountService) {}
 
   @Post()
-  async create(@Body() createUser: CreateUserDto) {
-   return await this.usersService.create(createUser);
+  async create(@Body() createAccount: CreateAccountDto) {
+    return await this.usersService.create(createAccount);
   }
 
   @Get()
@@ -37,8 +37,8 @@ export class UserController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateUser: UpdateUserDto){
-    await this.usersService.update(id, updateUser);
+  async update(@Param('id') id: number, @Body() updateAccount: UpdateAccountDto){
+    await this.usersService.update(id, updateAccount);
     return { message: msg.userUpdatedSucess, statusCode: 200 };
   }
 

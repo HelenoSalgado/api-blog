@@ -9,29 +9,17 @@ import {
 } from 'class-validator';
 import { CreateProfileDto } from 'src/modules/profile/profile.tdo';
 
-export class CreateUserDto {
+export class CreateAccountDto {
 
   id: number;
 
-  @IsNotEmpty()
-  @ApiProperty()
-  accountId: number;
-
-  @IsOptional()
-  @MinLength(2)
   @MaxLength(21)
   @ApiProperty()
-  firstName?: string;
+  company: string;
 
-  @IsOptional()
-  @MinLength(2)
-  @MaxLength(21)
+  @MaxLength(100)
   @ApiProperty()
-  lastName?: string;
-
-  @IsNotEmpty()
-  @ApiProperty()
-  username: string;
+  CNPJ: string;
 
   @IsEmail()
   @ApiProperty()
@@ -45,12 +33,6 @@ export class CreateUserDto {
   @ApiProperty()
   password: string;
 
-  @IsNotEmpty()
-  @ApiProperty()
-  jobTitle?: string;
-
-  profile?: CreateProfileDto;
-
   @IsOptional()
   resetPasswordToken?: string;
 
@@ -62,4 +44,4 @@ export class CreateUserDto {
   blocked: boolean;
 }
 
-export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['email'] as const)) {}
+export class UpdateAccountDto extends PartialType(OmitType(CreateAccountDto, ['email'] as const)) {}

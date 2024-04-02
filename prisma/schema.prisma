@@ -7,11 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id                 Int         @id @default(autoincrement())
+  company            String      @db.VarChar(100)
+  CNPJ               String      @db.VarChar(100)
+  email              String      @unique @db.VarChar(128)
+  provider           String?     @db.VarChar(64)
+  password           String      @db.VarChar(255)
+  resetPasswordToken String?     @db.VarChar(255)
+  confirmationCode   String?     @db.VarChar(6)
+  confirmed          Boolean     @default(false)
+  blocked            Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  isAdmin            Boolean     @default(true)
+  users              User[]
+}
+
 // Schema Blog
 model User {
   id                 Int       @id @default(autoincrement())
-  firstName          String?   @db.VarChar(64)
-  lastName           String?   @db.VarChar(64)
+  firstName          String    @db.VarChar(64)
+  lastName           String    @db.VarChar(64)
   username           String    @db.VarChar(64)
   email              String    @unique @db.VarChar(128)
   provider           String?   @db.VarChar(64)
@@ -22,31 +39,34 @@ model User {
   blocked            Boolean   @default(false)
   jobTitle           String?   @db.VarChar(64)
   profile            Profile?
-  createdAt          DateTime  @default(now())
+  accountId          Int
+  account            Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   inGroup            InGroup[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 model Profile {
-  id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(255)
-  avatarUrl   String?       @db.VarChar(255)
-  imgUrl      String?       @db.VarChar(255)
-  biograpy    String?
-  slug        String        @unique @db.VarChar(255)
-  published   Boolean       @default(true)
-  userId      Int           @unique
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  avatarUrl   String?      @db.VarChar(255)
+  imgUrl      String?      @db.VarChar(255)
+  biograpy    String?      @db.Text
+  slug        String       @unique @db.VarChar(255)
+  published   Boolean      @default(true)
+  userId      Int          @unique
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   posts       Post[]
-  socialMedia SocialMedia[]
+  socialMedia SocialMedia?
 }
 
 model SocialMedia {
   id        Int     @id @default(autoincrement())
   name      String  @db.VarChar(64)
   acessLink String  @db.VarChar(255)
-  profileId Int
+  profileId Int     @unique
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -72,7 +92,7 @@ model Post {
 model Category {
   id          Int      @id @default(autoincrement())
   name        String   @unique @db.VarChar(255)
-  description String?
+  description String?  @db.VarChar(270)
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -95,9 +115,9 @@ model Collection {
 model Webhook {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(255)
-  url       String
-  headers   Json?
-  events    Json?
+  url       String   @db.VarChar(255)
+  headers   Json?    @db.Json
+  events    Json?    @db.Json
   enabled   Boolean  @default(false)
   createdAt DateTime @db.Timestamp()
   updatedAt DateTime @updatedAt
@@ -111,28 +131,31 @@ model Group {
   groupType           GroupType      @relation(fields: [groupTypeId], references: [id], onDelete: Cascade)
   createdAt           DateTime       @db.Timestamp()
   updatedAt           DateTime       @updatedAt
-  InGroup             InGroup[]
   Subscription        Subscription[]
+  InGroup             InGroup[]
 }
 
 model InGroup {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId   Int
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  updatedAt DateTime @updatedAt()
+  id          Int       @id @default(autoincrement())
+  groupId     Int
+  group       Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupTypeId Int
+  groupType   GroupType @relation(fields: [groupTypeId], references: [id], onDelete: Cascade)
+  updatedAt   DateTime  @updatedAt()
 }
 
 model GroupType {
   id             Int                 @id @default(autoincrement())
-  name           String              @db.VarChar(128)
-  membersMin     Int
+  name           String              @db.VarChar(64)
+  membersMin     Int                 @db.SmallInt
   membersMax     Int
   group          Group[]
-  Software       Software[]
-  Plan           Plan[]
-  Sale           Sale[]
+  InGroup        InGroup[]
+  software       Software[]
+  plan           Plan[]
+  sale           Sale[]
   productSale    ProductSale?
   serviceSale    ServiceSale?
   oneServiceSale OneTimeServiceSale?
@@ -158,10 +181,10 @@ model Plan {
   optionIncluded OptionIncluded[]
   include        Include[]
   prerequisite   Prerequisite[]
-  createdAt      DateTime         @db.Timestamp()
+  createdAt      DateTime         @default(now())
   active         Boolean          @default(false)
-  PlanHistory    PlanHistory[]
-  Subscription   Subscription[]
+  planHistory    PlanHistory[]
+  subscription   Subscription[]
 }
 
 model Option {
@@ -235,7 +258,7 @@ model PlanHistory {
   startDate      DateTime     @db.Date
   endDate        DateTime     @db.Date
   createdAt      DateTime     @db.Timestamp()
-  Invoice        Invoice[]
+  invoice        Invoice[]
 }
 
 model Subscription {
@@ -255,8 +278,8 @@ model Subscription {
   validUntil       DateTime      @db.Date
   createdAt        DateTime      @db.Timestamp()
   updatedAt        DateTime      @updatedAt
-  Invoice          Invoice[]
-  PlanHistory      PlanHistory[]
+  invoice          Invoice[]
+  planHistory      PlanHistory[]
 }
 
 // Service Product or Service
@@ -273,7 +296,7 @@ model Sale {
   userGroupType   GroupType            @relation(fields: [userGroupTypeId], references: [id], onDelete: Cascade)
   productSale     ProductSale[]
   serviceSale     ServiceSale[]
-  OneServiceSale  OneTimeServiceSale[]
+  oneServiceSale  OneTimeServiceSale[]
 }
 
 model SaleStatus {
@@ -308,7 +331,7 @@ model ProductSale {
   sale            Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId       Int
   product         Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  Shipment        Shipment[]
+  shipment        Shipment[]
 }
 
 model Stock {
@@ -380,6 +403,8 @@ model Country {
 
 model State {
   id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(100)
+  UF        String  @db.Char(2)
   countryId Int
   country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
   city      City[]
@@ -387,6 +412,8 @@ model State {
 
 model City {
   id      Int      @id @default(autoincrement())
+  name    String   @db.VarChar(100)
+  zipCode Int      @db.SmallInt
   stateId Int
   state   State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
   client  Client[]
@@ -396,6 +423,8 @@ model Client {
   id        Int        @id @default(autoincrement())
   firstName String     @db.VarChar(100)
   lastName  String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(168)
+  whatsApp  Int        @db.SmallInt
   company   String?    @db.VarChar(255)
   VAT_ID    String?    @db.VarChar(60)
   cityId    Int
@@ -413,11 +442,10 @@ model Address {
   district String     @db.VarChar(100)
   clientId Int
   client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Shipment Shipment[]
+  shipment Shipment[]
 }
 
 // Details from shipments
-
 model Shipment {
   id             Int              @id @default(autoincrement())
   productSaleId  Int
@@ -431,28 +459,60 @@ model Shipment {
   shipmentTypeId Int
   shipmentType   ShipmentType     @relation(fields: [shipmentTypeId], references: [id], onDelete: Cascade)
   createdAt      DateTime         @db.Timestamp()
-  ShipmentStatus ShipmentStatus[]
+  shipmentStatus ShipmentStatus[]
+  paymentDetails PaymentDetails[]
 }
 
 model ShipmentType {
   id       Int        @id @default(autoincrement())
   name     String     @db.VarChar(64)
-  Shipment Shipment[]
+  shipment Shipment[]
 }
 
 model ShipmentStatus {
-  id         Int      @id @default(autoincrement())
-  shipmentId Int
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  id              Int           @id @default(autoincrement())
+  shipmentId      Int
+  shipment        Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  time            DateTime      @db.Timestamp()
+  notes           String        @db.Text
+  statusCatalogId Int
+  statusCatalog   StatusCatalog @relation(fields: [statusCatalogId], references: [id], onDelete: Cascade)
 }
 
+// Status of shipment
 model StatusCatalog {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(255)
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  shipmentStatus ShipmentStatus[]
 }
 
 model PaymentType {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(64)
-  shipment Shipment[]
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(64)
+  shipment    Shipment[]
+  paymentData PaymentData[]
+}
+
+model PaymentDetails {
+  id            Int         @id @default(autoincrement())
+  shipmentId    Int
+  shipment      Shipment    @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  paymentDataId Int
+  paymentData   PaymentData @relation(fields: [paymentDataId], references: [id], onDelete: Cascade)
+  value         String      @db.VarChar(255)
+}
+
+model PaymentData {
+  id             Int              @id @default(autoincrement())
+  dataName       String           @db.VarChar(255)
+  dataType       String           @db.VarChar(255)
+  paymentTypeId  Int
+  paymentType    PaymentType      @relation(fields: [paymentTypeId], references: [id], onDelete: Cascade)
+  paymentDetails PaymentDetails[]
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  BUSINES
 }

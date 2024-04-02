@@ -7,23 +7,30 @@ export class UserRepository {
 
   constructor(private prisma: PrismaService) {}
 
-  create({ name, username, email, password, jobTitle }: CreateUserDto){
+  create({ accountId, firstName, lastName, username, email, password, jobTitle }: CreateUserDto){
     return this.prisma.user.create({ 
       data: {
-        name,
+        firstName,
+        lastName,
         username,
         email,
         password,
         jobTitle,
+        account: {
+          connect: {
+            id: accountId
+          }
+        },
         profile: {
           create: {
-            name,
-            slug: name.toLowerCase().replace(' ', '-')
+            name: 'name test',
+            slug: firstName.toLowerCase().replace(' ', '-')
           }
         }
       },
       select: {
-        name: true,
+        id: true,
+        firstName: true,
         username: true,
         email: true,
         jobTitle: true
@@ -35,7 +42,7 @@ export class UserRepository {
     return this.prisma.user.findMany({
       select: {
         id: true,
-        name: true,
+        firstName: true,
         email: true,
         jobTitle: true,
         confirmed: true,
@@ -57,19 +64,30 @@ export class UserRepository {
       where: { id },
       select: {
         id: true,
-        name: true,
+        firstName: true,
         email: true,
         jobTitle: true,
-        confirmed: true
+        confirmed: true,
+        inGroup: {
+          select: {
+            groupType: {
+              select: {
+                name: true,
+                membersMax: true
+              }
+            }
+          }
+        }
       },
      });
   }
 
-  update(id: number, { name, jobTitle, confirmed }: UpdateUserDto){
+  update(id: number, { firstName, lastName, jobTitle, confirmed }: UpdateUserDto){
     return this.prisma.user.update({
       where: { id },
       data: {
-        name,
+        firstName,
+        lastName,
         jobTitle,
         confirmed
       },

@@ -21,10 +21,23 @@ import { CollectionModule } from './modules/collection/collection.module';
 import { CollectionController } from './modules/collection/collection.controller';
 import { CollectionService } from './modules/collection/collection.service';
 import { CollectionRepository } from './modules/collection/collection.repository';
+import { ClientController } from './modules/store/client/client.controller';
+import { ClientService } from './modules/store/client/client.service';
+import { ClientRepository } from './modules/store/client/client.repository';
+import { AccountModule } from './modules/account/account.module';
+import { AccountController } from './modules/account/account.controller';
+import { AccountService } from './modules/account/account.service';
+import { AccountRepository } from './modules/account/account.repository';
+import { AdminUserModule } from './modules/account/admin/user/users.module';
+import { AdminUserController } from './modules/account/admin/user/user.controller';
+import { AdminUserService } from './modules/account/admin/user/user.service';
+import { AdminUserRepository } from './modules/account/admin/user/user.repository';
 
 @Module({
   imports: [
     PrismaModule,
+    AccountModule,
+    AdminUserModule,
     UserModule, 
     ProfileModule, 
     PostModule, 
@@ -35,23 +48,32 @@ import { CollectionRepository } from './modules/collection/collection.repository
     })
   ],
   controllers: [
+    AccountController,
+    AdminUserController,
     UserController, 
     ProfileController, 
     PostController,
     CategoryController,
-    CollectionController
+    CollectionController,
+    ClientController
   ],
   providers: [
+    AccountService,
+    AdminUserService,
     UserService, 
     ProfileService,
     PostService,
     CategoryService,
     CollectionService,
+    ClientService,
+    AccountRepository,
+    AdminUserRepository,
     UserRepository, 
     ProfileRepository,
     PostRepository,
     CategoryRepository,
-    CollectionRepository
+    CollectionRepository,
+    ClientRepository
   ],
 })
 export class AppModule {}
