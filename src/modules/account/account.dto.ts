@@ -3,11 +3,10 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
-  IsString,
   MaxLength,
-  MinLength,
 } from 'class-validator';
-import { CreateProfileDto } from 'src/modules/profile/profile.tdo';
+import { CreateUserDto, UpdateUserDto } from '../user/user.dto';
+import type { Role } from '@prisma/client';
 
 export class CreateAccountDto {
 
@@ -17,10 +16,16 @@ export class CreateAccountDto {
   @ApiProperty()
   company: string;
 
+  @IsOptional()
+  @MaxLength(255)
+  @ApiProperty()
+  logo: string;
+
   @MaxLength(100)
   @ApiProperty()
   CNPJ: string;
 
+  @IsNotEmpty()
   @IsEmail()
   @ApiProperty()
   email: string;
@@ -42,6 +47,26 @@ export class CreateAccountDto {
   confirmed: boolean;
 
   blocked: boolean;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  user:  CreateUserDto;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  planId: number;
 }
 
-export class UpdateAccountDto extends PartialType(OmitType(CreateAccountDto, ['email'] as const)) {}
+export class UpdateAccountDto extends PartialType(OmitType(CreateAccountDto, ['email'] as const)) {
+  @IsOptional()
+  @ApiProperty()
+  userId: number;
+
+  @IsOptional()
+  @ApiProperty()
+  userGroupId: number;
+
+  @IsOptional()
+  @ApiProperty()
+  role: Role;
+}

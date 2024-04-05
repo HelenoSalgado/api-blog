@@ -20,13 +20,13 @@ export class ProfileRepository {
     });
   };
 
-  update(id: number, { name, avatarUrl, imgUrl, biograpy, published }: UpdateProfileDto){
+  update(id: number, { name, avatar, image, biograpy, published }: UpdateProfileDto){
     return this.prisma.profile.update({
       where: { id },
       data: {
         name,
-        avatarUrl,
-        imgUrl,
+        avatar,
+        image,
         biograpy,
         published
       },

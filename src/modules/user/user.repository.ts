@@ -20,12 +20,6 @@ export class UserRepository {
           connect: {
             id: accountId
           }
-        },
-        profile: {
-          create: {
-            name: 'name test',
-            slug: firstName.toLowerCase().replace(' ', '-')
-          }
         }
       },
       select: {
@@ -33,7 +27,18 @@ export class UserRepository {
         firstName: true,
         username: true,
         email: true,
-        jobTitle: true
+        jobTitle: true,
+        role: true,
+        userGroup: {
+          select: {
+            limitUsers: true,
+            groupType: {
+              select: {
+                role: true
+              }
+            }
+          }
+        }
       },
     });
   }
@@ -46,6 +51,17 @@ export class UserRepository {
         email: true,
         jobTitle: true,
         confirmed: true,
+        role: true,
+        userGroup: {
+          select: {
+            limitUsers: true,
+            groupType: {
+              select: {
+                role: true
+              }
+            }
+          }
+        }
       },
     });
   }
@@ -68,12 +84,13 @@ export class UserRepository {
         email: true,
         jobTitle: true,
         confirmed: true,
-        inGroup: {
+        role: true,
+        userGroup: {
           select: {
+            limitUsers: true,
             groupType: {
               select: {
-                name: true,
-                membersMax: true
+                role: true
               }
             }
           }
@@ -95,7 +112,12 @@ export class UserRepository {
   }
 
   remove(id: number) {
-    return this.prisma.user.delete({ where: { id } });
+    return this.prisma.user.delete({ 
+      where: { id },
+      include: {
+        profile: true
+      }
+    });
   }
 
 }

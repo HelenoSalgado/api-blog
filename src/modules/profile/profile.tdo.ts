@@ -19,7 +19,7 @@ export class CreateProfileDto {
 
   @IsOptional()
   @ApiProperty()
-  avatarUrl?: string;
+  avatar?: string;
 
   @IsOptional()
   @ApiProperty()
@@ -28,7 +28,7 @@ export class CreateProfileDto {
 
   @IsOptional()
   @ApiProperty()
-  imgUrl?: string;
+  image?: string;
 
   @IsNotEmpty()
   @ApiProperty()

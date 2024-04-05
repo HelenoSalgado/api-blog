@@ -32,7 +32,7 @@ export class CreateClientDto {
   @IsOptional()
   @MaxLength(21)
   @ApiProperty()
-  whatsApp?: number;
+  whatsApp?: string = '';
 
   @IsNotEmpty()
   @MaxLength(64)
@@ -45,17 +45,8 @@ export class CreateClientDto {
   VAT_ID: string;
 
   @IsNotEmpty()
-  @MaxLength(64)
   @ApiProperty()
-  cityId: number; 
-
-  @IsNotEmpty()
-  @ApiProperty()
-  address: Address[]
-
-  @IsNotEmpty()
-  @ApiProperty()
-  Shipment: Shipment[]
+  accountId: number; 
   
 }
 

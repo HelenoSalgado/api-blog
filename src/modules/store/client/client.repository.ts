@@ -7,7 +7,7 @@ export class ClientRepository {
 
   constructor(private prisma: PrismaService) {}
 
-  create({ firstName, lastName,  VAT_ID, email, whatsApp, company, cityId, address, Shipment }: CreateClientDto){
+  create({ firstName, lastName,  VAT_ID, email, whatsApp, company, accountId }: CreateClientDto){
     return this.prisma.client.create({ 
       data: {
         firstName,
@@ -16,46 +16,35 @@ export class ClientRepository {
         company,
         email,
         whatsApp,
-        Shipment: {
-          create: Shipment
-        },
-        city: {
-          connect: {
-            id: cityId
-          }
-        },
-        address: {
-          create: address
-        }
+        accountId
       }
     });
   }
 
-  findAll(){
+  findAll(accountId: number){
     return this.prisma.client.findMany({
+      where: { accountId },
       select: {
         id: true,
         firstName: true,
-        lastName: true,
-        company: true,
         email: true,
         whatsApp: true
-      },
+      }
     });
   }
 
-  async findEmail(email: string){
-    return this.prisma.client.findUnique({ 
-      where: { email },
+  async verifyClient(email: string, accountId: number){
+    return this.prisma.client.findFirst({ 
+      where: { email, AND: { accountId } },
       select: {
-        email: true,
+        id: true
       },
     });
   }
 
-  findOne(id: number){
-    return this.prisma.client.findUnique({ 
-      where: { id },
+  findOne(id: number, accountId: number){
+    return this.prisma.client.findFirst({ 
+      where: { id, AND: { accountId } },
       select: {
         id: true,
         firstName: true,
@@ -71,7 +60,7 @@ export class ClientRepository {
             address: true
           }
         }
-      },
+      }
      });
   }
 

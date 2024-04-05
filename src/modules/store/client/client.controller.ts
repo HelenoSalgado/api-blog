@@ -6,10 +6,10 @@ import {
   Param, 
   Delete,
   Put, 
-  NotFoundException 
+  NotFoundException, 
+  Query
 } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { msg } from 'src/constants/msgUser';
 import { CreateClientDto, UpdateClientDto } from './client.dto';
 
 @Controller('clients')
@@ -18,34 +18,27 @@ export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Post()
-  async create(@Body() createUser: CreateClientDto) {
-   await this.clientService.create(createUser);
-   return { message: msg.userCreatedSucess, statusCode: 200 };
+  async create(@Body() createClient: CreateClientDto) {
+    return await this.clientService.create(createClient);
   }
 
   @Get()
-  async findAll(){
-    const clients = await this.clientService.findAll();
-    if(!clients.length) throw new NotFoundException(msg.usersNotExist);
-    return clients;
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    const client = await this.clientService.findOne(id);
-    if(!client) throw new NotFoundException(msg.userNotExist);
+  async find( 
+    @Query('accountId') accountId: number,
+    @Query('clientId') clientId: number
+  ) {
+    const client = await this.clientService.find(accountId, clientId);
+    if(!client) throw new NotFoundException('Client não encontrado');
     return client;
   }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateClient: UpdateClientDto){
-    await this.clientService.update(id, updateClient);
-    return { message: msg.userUpdatedSucess, statusCode: 200 };
+    return await this.clientService.update(id, updateClient);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    await this.clientService.remove(id);
-    return { message: msg.userDeletedSucess, statusCode: 200 };
+    return await this.clientService.remove(id);
   }
 }

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Client" ALTER COLUMN "whatsApp" DROP NOT NULL,
+ALTER COLUMN "whatsApp" SET DATA TYPE VARCHAR(21);

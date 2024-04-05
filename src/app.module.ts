@@ -28,17 +28,27 @@ import { AccountModule } from './modules/account/account.module';
 import { AccountController } from './modules/account/account.controller';
 import { AccountService } from './modules/account/account.service';
 import { AccountRepository } from './modules/account/account.repository';
-import { AdminUserModule } from './modules/account/admin/user/users.module';
-import { AdminUserController } from './modules/account/admin/user/user.controller';
-import { AdminUserService } from './modules/account/admin/user/user.service';
-import { AdminUserRepository } from './modules/account/admin/user/user.repository';
+import { GroupModule } from './modules/group/group.module';
+import { GroupController } from './modules/group/group.controller';
+import { GroupService } from './modules/group/group.service';
+import { GroupRepository } from './modules/group/group.repository';
+import { PlanController } from './modules/plan/plan.controller';
+import { PlanModule } from './modules/plan/plan.module';
+import { PlanService } from './modules/plan/plan.service';
+import { PlanRepository } from './modules/plan/plan.repository';
+import { ProductModule } from './modules/store/product/product.module';
+import { ProductController } from './modules/store/product/product.controller';
+import { ProductService } from './modules/store/product/product.service';
+import { ProductRepository } from './modules/store/product/product.repository';
 
 @Module({
   imports: [
     PrismaModule,
+    PlanModule,
     AccountModule,
-    AdminUserModule,
-    UserModule, 
+    GroupModule,
+    UserModule,
+    ProductModule, 
     ProfileModule, 
     PostModule, 
     CategoryModule,
@@ -48,9 +58,11 @@ import { AdminUserRepository } from './modules/account/admin/user/user.repositor
     })
   ],
   controllers: [
+    PlanController,
     AccountController,
-    AdminUserController,
+    GroupController,
     UserController, 
+    ProductController,
     ProfileController, 
     PostController,
     CategoryController,
@@ -58,17 +70,21 @@ import { AdminUserRepository } from './modules/account/admin/user/user.repositor
     ClientController
   ],
   providers: [
+    PlanService,
     AccountService,
-    AdminUserService,
-    UserService, 
+    GroupService,
+    UserService,
+    ProductService,
     ProfileService,
     PostService,
     CategoryService,
     CollectionService,
     ClientService,
+    PlanRepository,
     AccountRepository,
-    AdminUserRepository,
+    GroupRepository,
     UserRepository, 
+    ProductRepository,
     ProfileRepository,
     PostRepository,
     CategoryRepository,

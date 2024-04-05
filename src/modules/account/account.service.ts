@@ -1,7 +1,7 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateAccountDto, UpdateAccountDto } from './account.dto';
 import { AccountRepository } from './account.repository';
-import { msg } from 'src/constants/msgUser';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AccountService {
@@ -12,7 +12,11 @@ export class AccountService {
 
     const accountExist = await this.repository.findEmail(createAccount.email);
 
-    if(accountExist) throw new HttpException("Conta já existe", 409)
+    if(accountExist) throw new HttpException("Conta já existe", 409);
+
+    const userExist = await this.repository.findUserEmail(createAccount.user.email);
+
+    if(userExist) throw new HttpException("Usuário já existe em outra conta", 409);
 
     return await this.repository.create(createAccount);
 
@@ -31,7 +35,7 @@ export class AccountService {
   }
 
   async remove(id: number) {
-    return await this.repository.remove(Number(id));
+    await this.repository.remove(Number(id));
   }
 
 }

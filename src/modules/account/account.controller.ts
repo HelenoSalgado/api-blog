@@ -15,36 +15,35 @@ import { CreateAccountDto, UpdateAccountDto } from './account.dto';
 @Controller('account')
 export class AccountController {
 
-  constructor(private readonly usersService: AccountService) {}
+  constructor(private readonly accountService: AccountService) {}
 
   @Post()
   async create(@Body() createAccount: CreateAccountDto) {
-    return await this.usersService.create(createAccount);
+    return await this.accountService.create(createAccount);
   }
 
   @Get()
   async findAll(){
-    const users = await this.usersService.findAll();
-    if(!users.length) throw new NotFoundException(msg.usersNotExist);
-    return users;
+    const account = await this.accountService.findAll();
+    if(!account.length) throw new NotFoundException('Conta não existe');
+    return account;
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    const user = await this.usersService.findOne(id);
+    const user = await this.accountService.findOne(id);
     if(!user) throw new NotFoundException(msg.userNotExist);
     return user;
   }
 
   @Put(':id')
   async update(@Param('id') id: number, @Body() updateAccount: UpdateAccountDto){
-    await this.usersService.update(id, updateAccount);
-    return { message: msg.userUpdatedSucess, statusCode: 200 };
+    return await this.accountService.update(id, updateAccount);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    await this.usersService.remove(id);
-    return { message: msg.userDeletedSucess, statusCode: 200 };
+    await this.accountService.remove(id);
+    throw new NotFoundException("Conta deletada com sucesso");
   }
 }

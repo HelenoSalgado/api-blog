@@ -17,10 +17,10 @@ export class UserController {
 
   constructor(private readonly usersService: UserService) {}
 
-  @Post()
-  async create(@Body() createUser: CreateUserDto) {
-   return await this.usersService.create(createUser);
-  }
+  // @Post()
+  // async create(@Body() createUser: CreateUserDto) {
+  //  return await this.usersService.create(createUser);
+  // }
 
   @Get()
   async findAll(){

@@ -8,15 +8,15 @@ export class UserService {
 
   constructor(private repository: UserRepository) {}
 
-  async create(createUser: CreateUserDto){
+  // async create(createUser: CreateUserDto){
 
-    const userExist = await this.repository.findEmail(createUser.email);
+  //   const userExist = await this.repository.findEmail(createUser.email);
 
-    if(userExist) throw new HttpException("Usuário já existe", 409);
+  //   if(userExist) throw new HttpException("Usuário já existe", 409);
 
-    return await this.repository.create(createUser);
+  //   return await this.repository.create(createUser);
 
-  }
+  // }
 
   async findAll(){
     return await this.repository.findAll();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import type { CreateClientDto, UpdateClientDto } from './client.dto';
 import { ClientRepository } from './client.repository';
 import { msg } from 'src/constants/msgUser';
@@ -10,24 +10,22 @@ export class ClientService {
 
   async create(createClient: CreateClientDto){
 
-    //const clientExist = await this.repository.findEmail(createclient.email);
+    const clientExist = await this.repository.verifyClient(createClient.email, createClient.accountId);
 
-    //if(clientExist) return { message: msg.clientExist, statusCode: 200 };
+    if(clientExist.id) throw new HttpException("Client já existe", 409);
 
     return await this.repository.create(createClient);
 
   }
 
-  async findAll(){
-    return await this.repository.findAll();
+  // Retorna um client ou todos os clients
+  async find(accountId: number, clientId: number){
+    if(!clientId) return await this.repository.findAll(Number(accountId))
+    return await this.repository.findOne(Number(clientId), Number(accountId));
   }
 
-  async findEmail(email: string){
-    return await this.repository.findEmail(email);
-  }
-
-  async findOne( id: number ){
-    return await this.repository.findOne(Number(id));
+  async findAll(accountId: number){
+    return await this.repository.findAll(Number(accountId));
   }
 
   async update(id: number, updateClient: UpdateClientDto){

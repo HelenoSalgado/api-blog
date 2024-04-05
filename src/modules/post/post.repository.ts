@@ -54,7 +54,7 @@ export class PostRepository {
         profile: {
           select: {
             name: true,
-            avatarUrl: true,
+            avatar: true,
             slug: true
           }
         }
@@ -80,7 +80,12 @@ export class PostRepository {
   }
 
   remove(id: number){
-    return this.prisma.post.delete({ where: { id } });
+    return this.prisma.post.delete({ 
+      where: { id },
+      include: {
+        comments: true
+      }
+    });
   }
 
 }
