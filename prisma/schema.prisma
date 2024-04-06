@@ -9,9 +9,6 @@ datasource db {
 
 model Account {
   id                 Int             @id @default(autoincrement())
-  company            String          @db.VarChar(100)
-  logo               String          @db.VarChar(255)
-  CNPJ               String          @db.VarChar(100)
   email              String          @unique @db.VarChar(128)
   provider           String?         @db.VarChar(64)
   password           String          @db.VarChar(255)
@@ -20,14 +17,37 @@ model Account {
   confirmed          Boolean         @default(false)
   blocked            Boolean         @default(false)
   isAdmin            Boolean         @default(true)
+  planId             Int             @db.SmallInt
+  plan               Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  company            Company[]
   users              User[]
   posts              Post[]
   sendNewlatter      sendNewlatter[]
-  planId             Int             @db.SmallInt
-  plan               Plan            @relation(fields: [planId], references: [id], onDelete: Cascade)
+  webhooks           Webhook[]
+  client             Client[]
+  category           Category[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
-  Client             Client[]
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  logo      String   @db.VarChar(255)
+  CNPJ      String   @db.VarChar(100)
+  accountId Int      @db.SmallInt
+  account   Account  @relation(fields: [accountId], references: [id])
+  contact   Contact?
+}
+
+model Contact {
+  id        Int     @id @default(autoincrement())
+  whatsApp  String  @db.VarChar(17)
+  email     String  @db.VarChar(128)
+  tel       String  @db.VarChar(17)
+  celular   String  @db.VarChar(17)
+  companyId Int     @unique @db.SmallInt
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model sendNewlatter {
@@ -42,26 +62,25 @@ model sendNewlatter {
 
 // Schema Blog
 model User {
-  id                 Int        @id @default(autoincrement())
-  firstName          String     @db.VarChar(64)
-  lastName           String     @db.VarChar(64)
-  username           String     @db.VarChar(64)
-  email              String     @unique @db.VarChar(128)
-  provider           String?    @db.VarChar(64)
-  password           String     @db.VarChar(255)
-  resetPasswordToken String?    @db.VarChar(255)
-  confirmationCode   String?    @db.VarChar(6)
-  confirmed          Boolean    @default(false)
-  blocked            Boolean    @default(false)
-  jobTitle           String?    @db.VarChar(64)
+  id                 Int         @id @default(autoincrement())
+  firstName          String      @db.VarChar(64)
+  lastName           String      @db.VarChar(64)
+  username           String      @db.VarChar(64)
+  email              String      @unique @db.VarChar(128)
+  provider           String?     @db.VarChar(64)
+  password           String      @db.VarChar(255)
+  resetPasswordToken String?     @db.VarChar(255)
+  confirmationCode   String?     @db.VarChar(6)
+  confirmed          Boolean     @default(false)
+  blocked            Boolean     @default(false)
+  jobTitle           String?     @db.VarChar(64)
   profile            Profile?
-  role               Role       @default(USER)
-  accountId          Int        @db.SmallInt
-  account            Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
-  userGroupId        Int?       @db.SmallInt
-  userGroup          UserGroup? @relation(fields: [userGroupId], references: [id], onDelete: Cascade)
+  role               Role        @default(USER)
+  accountId          Int         @db.SmallInt
+  account            Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  userGroup          UserGroup[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 }
 
 model Profile {
@@ -89,25 +108,26 @@ model SocialMedia {
 }
 
 model Post {
-  id           Int         @id @default(autoincrement())
-  title        String      @db.VarChar(255)
-  description  String?     @db.VarChar(255)
-  content      String      @db.Text
-  imgUrl       String      @db.VarChar(255)
-  slug         String      @unique @db.VarChar(255)
-  published    Boolean     @default(false)
-  afterPost    String?     @db.VarChar(255)
-  beforePost   String?     @db.VarChar(255)
-  collectionId Int?        @db.SmallInt
-  collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  profileId    Int
-  profile      Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  accountId    Int?        @db.SmallInt
-  account      Account?    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  comments     Comment[]
-  categories   Category[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            Int            @id @default(autoincrement())
+  title         String         @db.VarChar(255)
+  description   String?        @db.VarChar(255)
+  content       String         @db.Text
+  imgUrl        String         @db.VarChar(255)
+  slug          String         @unique @db.VarChar(255)
+  published     Boolean        @default(false)
+  afterPost     String?        @db.VarChar(255)
+  beforePost    String?        @db.VarChar(255)
+  collectionId  Int?           @db.SmallInt
+  collection    Collection?    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  profileId     Int
+  profile       Profile        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  accountId     Int?           @db.SmallInt
+  account       Account?       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  viewsAndLikes ViewsAndLikes?
+  comments      Comment[]
+  categories    Category[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Comment {
@@ -120,6 +140,16 @@ model Comment {
   postId     Int
 }
 
+model ViewsAndLikes {
+  id        Int      @id @default(autoincrement())
+  views     Int      @db.Integer
+  likes     Int      @db.Integer
+  unlikes   Int      @db.Integer
+  idPost    Int      @unique @db.SmallInt
+  post      Post     @relation(fields: [idPost], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+}
+
 model Category {
   id          Int      @id @default(autoincrement())
   name        String   @unique @db.VarChar(255)
@@ -127,6 +157,8 @@ model Category {
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  accountId   Int      @db.SmallInt
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   posts       Post[]
 }
 
@@ -150,6 +182,8 @@ model Webhook {
   headers   Json?    @db.Json
   events    Json?    @db.Json
   enabled   Boolean  @default(false)
+  accountId Int      @db.SmallInt
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -161,9 +195,10 @@ model UserGroup {
   limitUsers  Int       @db.SmallInt
   planId      Int       @db.SmallInt
   plan        Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  userId      Int?      @db.SmallInt
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   groupTypeId Int       @db.SmallInt
   groupType   GroupType @relation(fields: [groupTypeId], references: [id], onDelete: Cascade)
-  users       User[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -430,19 +465,19 @@ model State {
 }
 
 model Client {
-  id          Int        @id @default(autoincrement())
-  firstName   String     @db.VarChar(100)
-  lastName    String     @db.VarChar(100)
-  email       String     @unique @db.VarChar(168)
-  whatsApp    String?    @db.VarChar(21)
-  company     String?    @db.VarChar(255)
-  VAT_ID      String?    @db.VarChar(60)
-  accountId   Int        @db.SmallInt
-  account     Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  address     Address[]
-  Shipment    Shipment[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id        Int        @id @default(autoincrement())
+  firstName String     @db.VarChar(100)
+  lastName  String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(168)
+  whatsApp  String?    @db.VarChar(21)
+  company   String?    @db.VarChar(255)
+  VAT_ID    String?    @db.VarChar(60)
+  accountId Int        @db.SmallInt
+  account   Account    @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  address   Address[]
+  Shipment  Shipment[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model Address {
