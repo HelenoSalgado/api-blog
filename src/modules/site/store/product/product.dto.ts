@@ -1,12 +1,7 @@
-import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
-import { Address, Shipment } from '@prisma/client';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
-  IsEmail,
   IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
+  MaxLength
 } from 'class-validator';
 
 export class CreateProductDto {

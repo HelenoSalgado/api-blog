@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaStoreService } from '../../../prisma/store/prisma.service';
 import type { CreateServiceDto, UpdateServiceDto } from './service.dto';
 
 @Injectable()
 export class ServiceRepository {
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaStoreService) {}
 
   create({ name, priceUnit, basicUnit, active, period, taxPercentage }: CreateServiceDto){
     return this.prisma.service.create({ 

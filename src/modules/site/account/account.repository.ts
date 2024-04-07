@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaBlogService } from '../../prisma/blog/prisma.service';
 import type { CreateAccountDto, UpdateAccountDto } from './account.dto';
 import { Role } from 'prisma/prisma-client';
 
 @Injectable()
 export class AccountRepository {
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaBlogService) {}
 
-  create({ name, logo, CNPJ, email, password, user, planId }: CreateAccountDto){
+  create({ company, email, password, user, planId }: CreateAccountDto){
     return this.prisma.account.create({ 
       data: {
         email,
         company: {
-         create: { name, CNPJ, logo,
+         create: { name: company.name, CNPJ: company.CNPJ, logo: company.logo,
           contact: {
             create: { whatsApp: '', celular: '', email: '', tel: '' }
           }
@@ -134,8 +134,7 @@ export class AccountRepository {
      });
   }
 
-  update(id: number, { 
-    name, logo, CNPJ, password, planId
+  update(id: number, { password, planId
   }: UpdateAccountDto){
     return this.prisma.account.update({
       where: { id },

@@ -11,17 +11,19 @@ import {
 import { UserService } from './user.service';
 import { msg } from 'src/constants/msgUser';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('users')
 export class UserController {
 
   constructor(private readonly usersService: UserService) {}
 
-  // @Post()
-  // async create(@Body() createUser: CreateUserDto) {
-  //  return await this.usersService.create(createUser);
-  // }
+  @Post()
+  async create(@Body() createUser: CreateUserDto) {
+   return await this.usersService.create(createUser);
+  }
 
+  @Public()
   @Get()
   async findAll(){
     const users = await this.usersService.findAll();
@@ -29,6 +31,7 @@ export class UserController {
     return users;
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: number) {
     const user = await this.usersService.findOne(id);

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Put, NotFoundException } fr
 import { CategoryService } from './category.service';
 import { msg } from 'src/constants/msgPost';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('categories')
 export class CategoryController {
@@ -13,6 +14,7 @@ export class CategoryController {
     return await this.categoryService.create(createCategory);
   }
 
+  @Public()
   @Get()
   async findAll() {
     const categories = await this.categoryService.findAll();
@@ -20,6 +22,7 @@ export class CategoryController {
     return categories;
   }
 
+  @Public()
   @Get(':name')
   async findOne(@Param('name') name: string) {  
       const category = await this.categoryService.findOne(name);

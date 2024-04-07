@@ -6,24 +6,11 @@ import {
   MaxLength,
 } from 'class-validator';
 import { CreateUserDto } from '../user/user.dto';
-import type { Role } from '@prisma/client';
+import type { Company, Role } from '@prisma/client';
 
 export class CreateAccountDto {
 
   id: number;
-
-  @MaxLength(21)
-  @ApiProperty()
-  name: string;
-
-  @IsOptional()
-  @MaxLength(255)
-  @ApiProperty()
-  logo: string;
-
-  @MaxLength(100)
-  @ApiProperty()
-  CNPJ: string;
 
   @IsNotEmpty()
   @IsEmail()
@@ -47,6 +34,10 @@ export class CreateAccountDto {
   confirmed: boolean;
 
   blocked: boolean;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  company: Company;
 
   @IsNotEmpty()
   @ApiProperty()

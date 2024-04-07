@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaBlogService } from '../../prisma/blog/prisma.service';
 import { SetGroupDto } from './group.dto';
 
 @Injectable()
 export class GroupRepository {
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaBlogService) {}
 
   findOne(id: number){
     return this.prisma.userGroup.findUnique({

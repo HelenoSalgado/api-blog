@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import type { CreatePostDto, UpdatePostDto } from './post.dto';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaBlogService } from '../../../prisma/blog/prisma.service';
 
 @Injectable()
 export class PostRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaBlogService) {}
 
   create({ 
     title, description, imgUrl, content, slug,

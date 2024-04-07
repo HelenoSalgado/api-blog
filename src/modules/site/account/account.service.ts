@@ -1,6 +1,7 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateAccountDto, UpdateAccountDto } from './account.dto';
 import { AccountRepository } from './account.repository';
+import { genSaltSync, hashSync } from 'bcryptjs';
 
 @Injectable()
 export class AccountService {
@@ -16,6 +17,10 @@ export class AccountService {
     const userExist = await this.repository.findUserEmail(createAccount.user.email);
 
     if(userExist) throw new HttpException("Usuário já existe em outra conta", 409);
+
+    const salt = genSaltSync(12);
+    createAccount.password = hashSync(createAccount.password, salt);
+    createAccount.user.password = hashSync(createAccount.user.password, salt);
 
     return await this.repository.create(createAccount);
 

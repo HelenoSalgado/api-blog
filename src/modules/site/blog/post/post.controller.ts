@@ -3,6 +3,7 @@ import { PostService } from './post.service';
 import { msg } from 'src/constants/msgPost';
 import { CreatePostDto } from './post.dto';
 import { UpdatePostDto } from './post.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('posts')
 export class PostController {
@@ -14,6 +15,7 @@ export class PostController {
     return await this.postsService.create(createPost);
   }
 
+  @Public()
   @Get()
   async findAll() {
     const posts = await this.postsService.findAll();
@@ -23,6 +25,7 @@ export class PostController {
     return posts;
   }
 
+  @Public()
   @Get(':slug')
   async findOne(@Param('slug') slug: string) {
       const post = await this.postsService.findOne(slug);

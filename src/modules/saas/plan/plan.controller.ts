@@ -5,6 +5,7 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { PlanService } from './plan.service';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('plan')
 
@@ -12,6 +13,7 @@ export class PlanController {
 
   constructor(private readonly planService: PlanService) {}
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: number) {
     const plan = await this.planService.findOne(id);
@@ -19,6 +21,7 @@ export class PlanController {
     return plan;
   }
 
+  @Public()
   @Get()
   async findAll(){
     const plan = await this.planService.findAll();

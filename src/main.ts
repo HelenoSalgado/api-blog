@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { PrismaService } from './modules/prisma/prisma.service';
+import { PrismaBlogService } from './modules/prisma/blog/prisma.service';
+import { PrismaStoreService } from './modules/prisma/store/prisma.service';
 import { ValidationPipe } from '@nestjs/common';
 
 const options = {
@@ -12,6 +13,7 @@ const options = {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  //app.setGlobalPrefix('v1');
   app.enableCors(options);
   // Ativar documentação automática da API
   const config = new DocumentBuilder()
@@ -23,8 +25,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
+  const prismaBlogService = app.get(PrismaBlogService);
+  const prismaStoreService = app.get(PrismaStoreService);
+  await prismaBlogService.enableShutdownHooks(app);
+  await prismaStoreService.enableShutdownHooks(app);
 
   // Ativar validação de erros no corpo da solicitação - class-validator
   app.useGlobalPipes(new ValidationPipe());

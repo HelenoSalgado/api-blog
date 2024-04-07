@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { UserController } from './modules/site/user/user.controller';
 import { UserModule } from './modules/site/user/users.module';
 import { PostModule } from './modules/site/blog/post/post.module';
-import { PrismaModule } from './modules/prisma/prisma.module';
+import { PrismaBlogModule } from './modules/prisma/blog/prisma.module';
+import { PrismaStoreModule } from './modules/prisma/store/prisma.module';
 import { PostController } from './modules/site/blog/post/post.controller';
 import { UserService } from './modules/site/user/user.service';
 import { PostService } from './modules/site/blog/post/post.service';
@@ -40,11 +41,17 @@ import { ProductModule } from './modules/site/store/product/product.module';
 import { ProductController } from './modules/site/store/product/product.controller';
 import { ProductService } from './modules/site/store/product/product.service';
 import { ProductRepository } from './modules/site/store/product/product.repository';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthController } from './modules/auth/auth.controller';
+import { AuthService } from './modules/auth/auth.service';
+import { SetIdAccountMiddleware } from './middleware/set-account-id.middleware';
 
 @Module({
   imports: [
-    PrismaModule,
+    PrismaBlogModule,
+    PrismaStoreModule,
     PlanModule,
+    AuthModule,
     AccountModule,
     GroupModule,
     UserModule,
@@ -59,6 +66,7 @@ import { ProductRepository } from './modules/site/store/product/product.reposito
   ],
   controllers: [
     PlanController,
+    AuthController,
     AccountController,
     GroupController,
     UserController, 
@@ -71,6 +79,7 @@ import { ProductRepository } from './modules/site/store/product/product.reposito
   ],
   providers: [
     PlanService,
+    AuthService,
     AccountService,
     GroupService,
     UserService,
@@ -92,4 +101,24 @@ import { ProductRepository } from './modules/site/store/product/product.reposito
     ClientRepository
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SetIdAccountMiddleware)
+    .exclude(
+      {
+        path: 'plan', method: RequestMethod.GET
+      },
+      {
+        path: 'account', method: RequestMethod.GET
+      },
+      {
+        path: 'users', method: RequestMethod.GET
+      }
+    )
+    .forRoutes(
+      {
+        path: '*', method: RequestMethod.ALL
+      }
+    );
+  }
+}

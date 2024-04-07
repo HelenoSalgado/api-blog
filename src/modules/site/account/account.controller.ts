@@ -11,17 +11,20 @@ import {
 import { AccountService } from './account.service';
 import { msg } from 'src/constants/msgUser';
 import { CreateAccountDto, UpdateAccountDto } from './account.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('account')
 export class AccountController {
 
   constructor(private readonly accountService: AccountService) {}
 
+  @Public()
   @Post()
   async create(@Body() createAccount: CreateAccountDto) {
     return await this.accountService.create(createAccount);
   }
 
+  @Public()
   @Get()
   async findAll(){
     const account = await this.accountService.findAll();
@@ -29,6 +32,7 @@ export class AccountController {
     return account;
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: number) {
     const user = await this.accountService.findOne(id);

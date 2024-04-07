@@ -1,0 +1,279 @@
+generator client {
+  provider = "prisma-client-js"
+  output = "../../node_modules/@prisma-store/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_STORE")
+}
+
+// Service Product or Service
+model Store {
+  id                   Int                 @id @default(autoincrement())
+  planId               Int?                @db.SmallInt
+  sale                 Sale[]
+  productSale          ProductSale?        @relation(fields: [productSaleId], references: [id])
+  serviceSale          ServiceSale?        @relation(fields: [serviceSaleId], references: [id])
+  oneServiceSale       OneTimeServiceSale? @relation(fields: [oneTimeServiceSaleId], references: [id])
+  productSaleId        Int?
+  serviceSaleId        Int?
+  oneTimeServiceSaleId Int?
+  groupTypeId          Int?
+}
+
+model Sale {
+  id             Int                  @id @default(autoincrement())
+  timeCreated    DateTime             @db.Timestamp()
+  timePaid       DateTime             @db.Timestamp()
+  amount         Decimal              @db.Decimal()
+  amountPaid     Decimal              @db.Decimal()
+  taxAmount      Decimal              @db.Decimal()
+  statusId       Int                  @db.SmallInt
+  status         SaleStatus           @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  productSale    ProductSale[]
+  serviceSale    ServiceSale[]
+  oneServiceSale OneTimeServiceSale[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  Store          Store?               @relation(fields: [storeId], references: [id])
+  storeId        Int?
+}
+
+model SaleStatus {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  sale      Sale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  priceUnit     Decimal       @db.Decimal()
+  basicUnit     String        @db.VarChar(255)
+  taxPercentage Decimal       @db.Decimal()
+  limited       Boolean       @default(true)
+  active        Boolean       @default(true)
+  productSale   ProductSale[]
+  stock         Stock?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ProductSale {
+  id           Int        @id @default(autoincrement())
+  quantitySold Decimal    @db.Decimal()
+  priceUnit    Decimal    @db.Decimal()
+  price        Decimal    @db.Decimal()
+  taxAmount    Decimal    @db.Decimal()
+  limited      Boolean    @default(true)
+  active       Boolean    @default(true)
+  saleId       Int        @db.SmallInt
+  sale         Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId    Int        @db.SmallInt
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  shipment     Shipment[]
+  Store        Store[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Stock {
+  id        Int      @id @default(autoincrement())
+  inStock   Decimal  @db.Decimal()
+  productId Int      @unique @db.SmallInt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(255)
+  priceUnit     Decimal       @db.Decimal()
+  basicUnit     String        @db.VarChar(255)
+  taxPercentage Decimal       @db.Decimal()
+  active        Boolean       @default(true)
+  period        Int           @db.SmallInt
+  serviceSale   ServiceSale[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model ServiceSale {
+  id           Int       @id @default(autoincrement())
+  quantitySold Decimal   @db.Decimal()
+  priceUnit    Decimal   @db.Decimal()
+  price        Decimal   @db.Decimal()
+  taxAmount    Decimal   @db.Decimal()
+  renove       Boolean   @default(true)
+  period       Int       @db.SmallInt
+  startTime    DateTime  @db.Timestamp()
+  endTime      DateTime? @db.Timestamp()
+  saleId       Int       @db.SmallInt
+  sale         Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  serviceId    Int       @db.SmallInt
+  service      Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  Store        Store[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model OneTimeService {
+  id            Int                  @id @default(autoincrement())
+  name          String               @db.VarChar(255)
+  price         Decimal              @db.Decimal()
+  taxPercentage Decimal              @db.Decimal()
+  active        Boolean              @default(true)
+  serviceSale   OneTimeServiceSale[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model OneTimeServiceSale {
+  id        Int            @id @default(autoincrement())
+  name      String         @db.VarChar(255)
+  price     Decimal        @db.Decimal()
+  taxAmount Decimal        @db.Decimal()
+  saleId    Int            @db.SmallInt
+  sale      Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  serviceId Int            @db.SmallInt
+  service   OneTimeService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  Store     Store[]
+}
+
+// Client and Locals
+model Country {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(64)
+  code      Int      @db.SmallInt
+  state     State[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model State {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  UF        String    @db.Char(2)
+  countryId Int       @db.SmallInt
+  country   Country   @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  address   Address[]
+}
+
+model Client {
+  id        Int        @id @default(autoincrement())
+  firstName String     @db.VarChar(100)
+  lastName  String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(168)
+  whatsApp  String?    @db.VarChar(21)
+  company   String?    @db.VarChar(255)
+  VAT_ID    String?    @db.VarChar(60)
+  accountId Int        @db.SmallInt
+  address   Address[]
+  Shipment  Shipment[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Address {
+  id        Int        @id @default(autoincrement())
+  zipCode   Int        @db.SmallInt
+  city      String     @db.VarChar(168)
+  zone      String     @db.VarChar(64)
+  street    String     @db.VarChar(255)
+  number    Int        @db.SmallInt
+  district  String     @db.VarChar(100)
+  clientId  Int        @db.SmallInt
+  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  stateId   Int        @db.SmallInt
+  state     State      @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  shipment  Shipment[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+// Details from shipments
+model Shipment {
+  id             Int              @id @default(autoincrement())
+  productSaleId  Int              @db.SmallInt
+  producSale     ProductSale      @relation(fields: [productSaleId], references: [id], onDelete: Cascade)
+  addressId      Int              @db.SmallInt
+  address        Address          @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  paymentTypeId  Int              @db.SmallInt
+  paymentType    PaymentType      @relation(fields: [paymentTypeId], references: [id], onDelete: Cascade)
+  clientId       Int              @db.SmallInt
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  shipmentTypeId Int              @db.SmallInt
+  shipmentType   ShipmentType     @relation(fields: [shipmentTypeId], references: [id], onDelete: Cascade)
+  shipmentStatus ShipmentStatus[]
+  paymentDetails PaymentDetails[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model ShipmentType {
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(64)
+  shipment  Shipment[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model ShipmentStatus {
+  id              Int                   @id @default(autoincrement())
+  shipmentId      Int                   @db.SmallInt
+  shipment        Shipment              @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  time            DateTime              @db.Timestamp()
+  notes           String                @db.Text
+  statusCatalogId Int                   @db.SmallInt
+  statusCatalog   ShipmentStatusCatalog @relation(fields: [statusCatalogId], references: [id], onDelete: Cascade)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+}
+
+// Status of shipment
+model ShipmentStatusCatalog {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(255)
+  shipmentStatus ShipmentStatus[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model PaymentType {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(64)
+  shipment    Shipment[]
+  paymentData PaymentData[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model PaymentDetails {
+  id            Int         @id @default(autoincrement())
+  shipmentId    Int         @db.SmallInt
+  shipment      Shipment    @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  paymentDataId Int         @db.SmallInt
+  paymentData   PaymentData @relation(fields: [paymentDataId], references: [id], onDelete: Cascade)
+  description   String      @db.VarChar(255)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model PaymentData {
+  id             Int              @id @default(autoincrement())
+  dataName       String           @db.VarChar(255)
+  dataType       String           @db.VarChar(255)
+  paymentTypeId  Int              @db.SmallInt
+  paymentType    PaymentType      @relation(fields: [paymentTypeId], references: [id], onDelete: Cascade)
+  paymentDetails PaymentDetails[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}

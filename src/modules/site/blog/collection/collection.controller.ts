@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Put, NotFoundException } fr
 import { CollectionService } from './collection.service';
 import { msg } from 'src/constants/msgCollection';
 import { CreateCollectionDto, UpdateCollectionDto } from './collection.dto';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
 @Controller('collection')
 export class CollectionController {
@@ -13,6 +14,7 @@ export class CollectionController {
     return await this.collectionService.create(createCollection);
   }
 
+  @Public()
   @Get()
   async findAll() {
     const posts = await this.collectionService.findAll();
@@ -20,6 +22,7 @@ export class CollectionController {
     return posts;
   }
 
+  @Public()
   @Get(':slug')
   async findOne(@Param('slug') slug: string) {
       const collection = await this.collectionService.findOne(slug);
