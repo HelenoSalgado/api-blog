@@ -52,6 +52,7 @@ export class UserRepository {
         jobTitle: true,
         confirmed: true,
         role: true,
+        profile: true,
         userGroup: {
           select: {
             limitUsers: true,
@@ -75,7 +76,12 @@ export class UserRepository {
         firstName: true,
         email: true,
         password: true,
-        role: true
+        role: true,
+        profile: {
+          select: {
+            slug: true
+          }
+        }
       },
     });
   }

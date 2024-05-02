@@ -17,20 +17,6 @@ export class CreateAccountDto {
   @ApiProperty()
   email: string;
 
-  @IsOptional()
-  @ApiProperty()
-  provider?: string;
-
-  @IsNotEmpty()
-  @ApiProperty()
-  password: string;
-
-  @IsOptional()
-  resetPasswordToken?: string;
-
-  @IsOptional()
-  confirmationToken?: string;
-
   confirmed: boolean;
 
   blocked: boolean;
@@ -38,6 +24,8 @@ export class CreateAccountDto {
   @IsNotEmpty()
   @ApiProperty()
   company: Company;
+
+  CNPJ: string
 
   @IsNotEmpty()
   @ApiProperty()

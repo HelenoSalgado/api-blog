@@ -25,15 +25,18 @@ export class AuthService {
     const  payload = { 
       id: user.id,
       accountId: user.accountId, 
-      role: user.role 
-    } as { id: number, accountId: number, role: Role};
+      role: user.role
+    } as { id: number, accountId: number, role: Role };
 
     //req['sub'] = payload
    
     return { 
       user: {
         id: user.id,
-        username: user.firstName.toLowerCase()
+        username: user.firstName.toLowerCase(),
+        profile: {
+          slug: user.profile.slug
+        }
       },
       access_token: await this.jwtService.signAsync(payload),
     };

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PostRepository } from './post.repository';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -18,6 +18,7 @@ export class PostService {
 
   async findAll(){
     const postsInCache = await this.cacheManager.get('getPostsAll');
+    if(postsInCache == 0) throw new NotFoundException('Nenhum post encontrado');
     if(postsInCache) return postsInCache;
     const posts = await this.repository.findAll();
     await this.cacheManager.set('getPostsAll', posts, 0);
@@ -25,7 +26,9 @@ export class PostService {
   }
 
   async findOne(slug: string){
-    return await this.repository.findOne(slug);
+    const post = await this.repository.findOne(slug);
+    if(!post) throw new NotFoundException('Nenhum post encontrado');
+    return post;
   }
 
   async update(id: number, updatePost: UpdatePostDto){

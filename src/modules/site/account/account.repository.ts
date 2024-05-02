@@ -8,7 +8,7 @@ export class AccountRepository {
 
   constructor(private prisma: PrismaBlogService) {}
 
-  create({ company, email, password, user, planId }: CreateAccountDto){
+  create({ company, email, user, planId }: CreateAccountDto){
     return this.prisma.account.create({ 
       data: {
         email,
@@ -19,14 +19,21 @@ export class AccountRepository {
           }
          }
         },
-        password,
         plan: {
           connect: { id: planId }
         },
         users: {
-          create: { firstName: user.firstName, lastName: user.lastName, email: user.email,
-            password: user.password, username: user.username, role: Role.ADMIN }
+          create: { 
+            firstName: user.firstName, lastName: user.lastName, email: user.email,
+            password: user.password, username: user.username, role: Role.ADMIN,
+            profile: {
+              create: {
+                name: user.firstName,
+                slug: user.firstName.toLowerCase()+'-'+user.lastName.toLowerCase()
+              }
+            }
           }
+          },
         },
         select: {
           id: true,
@@ -134,12 +141,11 @@ export class AccountRepository {
      });
   }
 
-  update(id: number, { password, planId
+  update(id: number, { planId
   }: UpdateAccountDto){
     return this.prisma.account.update({
       where: { id },
       data: {
-        password,
         planId
       },
       select: {
@@ -176,6 +182,7 @@ export class AccountRepository {
     return this.prisma.account.delete({ 
       where: { id },
       include: {
+        company: true,
         posts: true,
         sendNewlatter: true,
         users: {

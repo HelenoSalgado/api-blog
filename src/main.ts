@@ -13,7 +13,7 @@ const options = {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  //app.setGlobalPrefix('v1');
+  app.setGlobalPrefix('v1');
   app.enableCors(options);
   // Ativar documentação automática da API
   const config = new DocumentBuilder()
@@ -31,8 +31,6 @@ async function bootstrap() {
   await prismaStoreService.enableShutdownHooks(app);
 
   // Ativar validação de erros no corpo da solicitação - class-validator
-  app.useGlobalPipes(new ValidationPipe());
- 
   // Remoção automática de propriedades sem decoradores - DTO
   app.useGlobalPipes(
     new ValidationPipe({

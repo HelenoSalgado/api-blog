@@ -8,25 +8,23 @@ import {
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './profile.tdo';
-import { msg } from 'src/constants/msgProfile';
 import { Public } from 'src/modules/auth/decorators/public.decorator';
 
-@Controller('profile')
+@Controller('profiles')
 export class ProfileController {
 
   constructor(private readonly profileService: ProfileService) {}
 
   @Public()
-  @Get(':id')
-  async get(@Param('id') id: number) {
-    const profile = await this.profileService.findOne(id);
-    if(!profile) throw new NotFoundException('Usuário não existe');
+  @Get(':slug')
+  async get(@Param('slug') slug: string) {
+    const profile = await this.profileService.findOne(slug);
+    if(!profile) throw new NotFoundException('Perfil não existe');
     return profile;
   }
 
-  @Put(':id')
-  async update(@Param('id') id: number, @Body() updateProfile: UpdateProfileDto){
-   await this.profileService.update(id, updateProfile);
-   return { message: msg.profileUpdateSucess, statusCode: 200 };
+  @Put(':slug')
+  async update(@Param('slug') slug: string, @Body() updateProfile: UpdateProfileDto){
+   return await this.profileService.update(slug, updateProfile);
   }
 }

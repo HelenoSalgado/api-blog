@@ -7,9 +7,9 @@ export class ProfileRepository {
 
   constructor(private prisma: PrismaBlogService) {}
 
-  findOne(id: number){
+  findOne(slug: string){
     return this.prisma.profile.findUnique({
-      where: { id },
+      where: { slug },
       include: {
         posts: {
           select: {
@@ -20,9 +20,9 @@ export class ProfileRepository {
     });
   };
 
-  update(id: number, { name, avatar, image, biograpy, published }: UpdateProfileDto){
+  update(slug: string, { name, avatar, image, biograpy, published, userId }: UpdateProfileDto){
     return this.prisma.profile.update({
-      where: { id },
+      where: { slug },
       data: {
         name,
         avatar,

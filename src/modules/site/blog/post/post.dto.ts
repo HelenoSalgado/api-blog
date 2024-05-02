@@ -29,12 +29,6 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  profileId: number;
-
-  accountId: number;
-
-  @IsNotEmpty()
-  @ApiProperty()
   imgUrl: string;
       
   @IsNotEmpty()
@@ -57,6 +51,14 @@ export class CreatePostDto {
   @IsOptional()
   @ApiProperty({ required: false, default: false })
   published?: boolean = false;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  profileId: number;
+
+  @ApiProperty()
+  @IsOptional()
+  accountId: number;
 
 }
 

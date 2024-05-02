@@ -7,11 +7,11 @@ export class ProfileService {
 
   constructor(private repository: ProfileRepository) {}
 
-  async findOne(id: number){
-    return await this.repository.findOne(Number(id));
+  async findOne(slug: string){
+    return await this.repository.findOne(slug);
   }
 
-  async update(id: number, updateProfile: UpdateProfileDto){
-    return await this.repository.update(Number(id), updateProfile)
+  async update(slug: string, updateProfile: UpdateProfileDto){
+    return await this.repository.update(slug, updateProfile)
   }
 }

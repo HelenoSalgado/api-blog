@@ -19,7 +19,6 @@ export class AccountService {
     if(userExist) throw new HttpException("Usuário já existe em outra conta", 409);
 
     const salt = genSaltSync(12);
-    createAccount.password = hashSync(createAccount.password, salt);
     createAccount.user.password = hashSync(createAccount.user.password, salt);
 
     return await this.repository.create(createAccount);

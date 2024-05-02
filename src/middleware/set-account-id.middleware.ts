@@ -1,15 +1,16 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Body, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { Req } from 'src/types/express';
 
 @Injectable()
 export class SetIdAccountMiddleware implements NestMiddleware {
 
    constructor(private jwtService: JwtService){}
 
-   use(req: Request, res: Response, next: NextFunction) {
+   use(req: Req, res: Response, next: NextFunction) {
       const user = this.jwtService.decode(req.headers.authorization);
-      if(!user) throw new UnauthorizedException('accountId - chave não encontrada');
+      if(!user) throw new UnauthorizedException('Operação não autorizada');
       req.body.accountId = Number(user.accountId);
       next();
    }

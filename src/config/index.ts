@@ -17,3 +17,14 @@ export const Plan = {
         active: true
     }
 }
+
+function repoName(){
+    let array = ('https://github.com/HelenoSalgado/rfconsultoria.git').split('.');
+    let name = array[array.length -2].split('/')[2];
+    return name;
+}
+
+export const git = {
+    repoName: repoName(),
+    repoUrl: 'https://github.com/HelenoSalgado/rfconsultoria.git'
+}

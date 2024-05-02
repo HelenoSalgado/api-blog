@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod, UseInterceptors } from '@nestjs/common';
 import { UserController } from './modules/site/user/user.controller';
 import { UserModule } from './modules/site/user/users.module';
 import { PostModule } from './modules/site/blog/post/post.module';
@@ -45,6 +45,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
 import { AuthService } from './modules/auth/auth.service';
 import { SetIdAccountMiddleware } from './middleware/set-account-id.middleware';
+import { UploadController } from './modules/site/upload/upload.controller';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { SetIdAccountMiddleware } from './middleware/set-account-id.middleware';
     PostController,
     CategoryController,
     CollectionController,
+    UploadController,
     ClientController
   ],
   providers: [
@@ -112,8 +114,35 @@ export class AppModule implements NestModule{
         path: 'account', method: RequestMethod.GET
       },
       {
+        path: 'profiles', method: RequestMethod.GET
+      },
+      {
+        path: 'profiles/:slug', method: RequestMethod.GET
+      },
+      {
+        path: 'auth', method: RequestMethod.POST
+      },
+      {
+        path: 'auth/verify', method: RequestMethod.GET
+      },
+      {
+        path: 'account/:id', method: RequestMethod.GET
+      },
+      {
+        path: 'account', method: RequestMethod.POST
+      },
+      {
         path: 'users', method: RequestMethod.GET
-      }
+      },
+      {
+        path: 'posts', method: RequestMethod.GET
+      },
+      {
+        path: 'posts/:slug', method: RequestMethod.GET
+      },
+      {
+        path: 'upload', method: RequestMethod.POST
+      },
     )
     .forRoutes(
       {
