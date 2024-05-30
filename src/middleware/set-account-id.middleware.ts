@@ -1,4 +1,4 @@
-import { Body, Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { Req } from 'src/types/express';
@@ -10,7 +10,8 @@ export class SetIdAccountMiddleware implements NestMiddleware {
 
    use(req: Req, res: Response, next: NextFunction) {
       const user = this.jwtService.decode(req.headers.authorization);
-      if(!user) throw new UnauthorizedException('Operação não autorizada');
+      if(!user) throw new UnauthorizedException('Operação não autorizada'); 
+      req.body.profileId = Number(user.profile.id);
       req.body.accountId = Number(user.accountId);
       next();
    }

@@ -79,6 +79,7 @@ export class UserRepository {
         role: true,
         profile: {
           select: {
+            id: true,
             slug: true
           }
         }

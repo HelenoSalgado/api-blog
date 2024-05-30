@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import type { CreatePostDto, UpdatePostDto } from './post.dto';
 import { PrismaBlogService } from '../../../prisma/blog/prisma.service';
+import { PaginateFunction, PaginatedResult } from 'prisma-pagination';
+import { paginator } from 'src/modules/prisma/paginator';
 
 @Injectable()
 export class PostRepository {
   constructor(private prisma: PrismaBlogService) {}
 
   create({ 
-    title, description, imgUrl, content, slug,
-    afterPost, beforePost, published, profileId, accountId 
+    title, description, image, content, slug,
+    afterPost, beforePost, categories, published, profileId, accountId 
   }: CreatePostDto){
     return this.prisma.post.create({ 
       data: {
         title, 
         description, 
-        imgUrl,
+        image,
         content, 
         slug,
         afterPost,
@@ -25,22 +27,28 @@ export class PostRepository {
         },
         account: {
           connect: { id: accountId }
-        }
+        },
+        // categories: {
+        //   connect: categories.map(({id}) => { return {id}})
+        // }
       }
      });
   }
 
-  findAll(){
-    return this.prisma.post.findMany({
-      select: {
-        id: true,
-        title: true,
-        imgUrl: true,
-        content: true,
-        slug: true,
-        published: true,
+  async findAll(page: number, perPage: number ):Promise<PaginatedResult<CreatePostDto>> {
+    const paginate: PaginateFunction = paginator({ perPage });
+    return paginate(
+      this.prisma.post,
+      {
+        where: {},
+        orderBy: {
+          id: 'desc'
+        },
       },
-    });
+      {
+        page,
+      },
+    );
   }
 
   findOne(slug: string){
@@ -49,6 +57,7 @@ export class PostRepository {
       include: {
         categories: {
           select: {
+            id: true,
             name: true
           }
         },
@@ -64,20 +73,38 @@ export class PostRepository {
   }
 
   update(id: number, { 
-    title, description, imgUrl, content, afterPost, 
-    beforePost, published }: UpdatePostDto){
+    title, description, image, content, slug, afterPost, 
+    beforePost, published, categories }: UpdatePostDto){
     return this.prisma.post.update({ 
       where: { id }, 
       data: {
         title,
         description,
-        imgUrl,
+        image,
         content,
+        slug,
         afterPost,
         beforePost,
-        published
-      },
+        published,
+        categories: {
+          set: [],
+          connect: categories
+        }
+      }
     });
+  }
+
+  published(ids: number[], published: boolean){
+    return this.prisma.post.updateMany({
+      where: {
+        id: {
+          in: ids
+        }
+      },
+      data: {
+        published
+      }
+    })
   }
 
   remove(id: number){

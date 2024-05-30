@@ -7,12 +7,12 @@ export class CollectionRepository {
   constructor(private prisma: PrismaBlogService) {}
 
   create({ 
-    title, imgUrl, author, slug, posts, published
+    title, image, author, slug, posts, published
   }: CreateCollectionDto){
     return this.prisma.collection.create({ 
       data: {
         title, 
-        imgUrl, 
+        image, 
         author, 
         slug, 
         posts: {
@@ -30,7 +30,7 @@ export class CollectionRepository {
       select: {
         id: true,
         title: true,
-        imgUrl: true,
+        image: true,
         author: true,
         slug: true,
         published: true,
@@ -47,12 +47,12 @@ export class CollectionRepository {
     });
   }
 
-  update(id: number, { title, imgUrl, author, slug, posts, published }: UpdateCollectionDto){
+  update(id: number, { title, image, author, slug, posts, published }: UpdateCollectionDto){
     return this.prisma.collection.update({ 
       where: { id }, 
       data: {
         title,
-        imgUrl,
+        image,
         author,
         slug,
         posts: {

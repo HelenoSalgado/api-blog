@@ -6,7 +6,6 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { CreateCategoryDto } from '../category/category.dto';
 
 export class CreatePostDto {
  
@@ -29,7 +28,7 @@ export class CreatePostDto {
 
   @IsNotEmpty()
   @ApiProperty()
-  imgUrl: string;
+  image: string;
       
   @IsNotEmpty()
   @ApiProperty()
@@ -45,14 +44,16 @@ export class CreatePostDto {
   
   @IsOptional()
   @ApiProperty()
-  categories: CreateCategoryDto[]    
+  categories: {
+      id: number
+  }[]
 
   @IsBoolean()
   @IsOptional()
   @ApiProperty({ required: false, default: false })
   published?: boolean = false;
 
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty()
   profileId: number;
 

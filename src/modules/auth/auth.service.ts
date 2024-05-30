@@ -25,8 +25,11 @@ export class AuthService {
     const  payload = { 
       id: user.id,
       accountId: user.accountId, 
-      role: user.role
-    } as { id: number, accountId: number, role: Role };
+      role: user.role,
+      profile: {
+        id: user.profile.id
+      }
+    } as { id: number, accountId: number, role: Role, profile: { id: number } };
 
     //req['sub'] = payload
    
@@ -35,6 +38,7 @@ export class AuthService {
         id: user.id,
         username: user.firstName.toLowerCase(),
         profile: {
+          id: user.profile.id,
           slug: user.profile.slug
         }
       },

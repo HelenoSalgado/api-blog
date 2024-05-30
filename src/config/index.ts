@@ -1,8 +1,8 @@
 export enum Role {
-    "USER",
-    "ADMIN",
-    "AUTHOR",
-    "STORE"
+    "USER" = "USER",
+    "ADMIN" = "ADMIN",
+    "AUTHOR" = "AUTHOR",
+    "STORE" = "STORE"
 }
 
 export const secretUser = process.env.SECRET_USER

@@ -3,10 +3,9 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
-  MaxLength,
 } from 'class-validator';
 import { CreateUserDto } from '../user/user.dto';
-import type { Company, Role } from '@prisma/client';
+import type { Company, Role } from '@prisma/client/generator-build';
 
 export class CreateAccountDto {
 
@@ -25,11 +24,13 @@ export class CreateAccountDto {
   @ApiProperty()
   company: Company;
 
+  @IsOptional()
+  @ApiProperty()
   CNPJ: string
 
   @IsNotEmpty()
   @ApiProperty()
-  user:  CreateUserDto;
+  user: CreateUserDto;
 
   @IsNotEmpty()
   @ApiProperty()

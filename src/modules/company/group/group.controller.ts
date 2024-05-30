@@ -4,8 +4,7 @@ import {
   Body, 
   Param, 
   Put, 
-  NotFoundException, 
-  Post
+  NotFoundException
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { SetGroupDto } from './group.dto';

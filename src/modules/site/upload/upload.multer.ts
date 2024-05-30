@@ -19,7 +19,7 @@ const multerConfig = {
 
             file.originalname = fileName;
 
-            req.imgUrl = `https://raw.githubusercontent.com/HelenoSalgado/${req.headers.reponame}/main/public/img/${fileName}`;
+            req.image = `https://raw.githubusercontent.com/HelenoSalgado/${req.headers.reponame}/main/public/img/${fileName}`;
 
             cb(null, `${fileName}`);
 

@@ -6,7 +6,7 @@ import {
   } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from '@prisma/client';
+import { Role } from '@prisma/client/generator-build';
 import { Request } from 'express';
 import { secretUser } from 'src/config';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';

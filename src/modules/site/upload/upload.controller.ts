@@ -4,7 +4,6 @@ import {
     UploadedFile,
     ParseFilePipeBuilder,
     HttpStatus,
-    Res,
     Req,
     UseInterceptors
   } from '@nestjs/common';
@@ -18,10 +17,10 @@ import { execFileSync } from 'child_process';
   const MAX_PROFILE_PICTURE_SIZE_IN_BYTES = 2 * 1024 * 1024;
   const VALID_UPLOADS_MIME_TYPES = ['image/jpeg', 'image/png'];
   
-  @Controller()
+  @Controller('upload')
   @Public()
   export class UploadController {
-    @Post('upload')
+    @Post()
     @UseInterceptors(FileInterceptor('file', multerConfig))
     public async uploadFile(@Req() req: Request, 
       @UploadedFile(
@@ -38,8 +37,9 @@ import { execFileSync } from 'child_process';
     ) {
 
       execFileSync(`/tmp/push.sh ${req.headers.reponame} "file upload ${file.originalname}"`, {shell: true});
+      
       return {
-        repoImg: req.imgUrl,
+        repoImg: req.image,
         fileName: file.originalname
       };
     }

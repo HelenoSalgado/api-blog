@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from './category.repository';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -11,15 +11,18 @@ export class CategoryService {
   ) {}
 
   async create(createCategory: CreateCategoryDto){
-    this.cacheManager.del('getCategories');
+    await this.cacheManager.del('getCategories');
+    const existCategory = await this.findOne(createCategory.name);
+    if(existCategory) throw new ConflictException('Categoria já existe: crie categoria com um nome diferente');
     return await this.repository.create(createCategory);
   }
 
-  async findAll(){
-    const categoriesInCache = await this.cacheManager.get('getCategories');
-    if(categoriesInCache) return categoriesInCache;
-    const categories = await this.repository.findAll();
-    await this.cacheManager.set('getCategories', categories, 0);
+  async findAll(page: number, perPage: number){
+    //const categoriesInCache = await this.cacheManager.get('getCategories');
+    //if(categoriesInCache) return categoriesInCache;
+    const categories = await this.repository.findAll(page, perPage);
+    //if(!categories.data.length) throw new NotFoundException('Nenhuma categoria encontrada');
+    //await this.cacheManager.set('getCategories', categories, 0);
     return categories;
   }
 
@@ -28,13 +31,18 @@ export class CategoryService {
   }
 
   async update(id: number, updateCategory: UpdateCategoryDto){
-    this.cacheManager.del('getCategories');
+    await this.cacheManager.del('getCategories');
     return await this.repository.update(Number(id), updateCategory);
   }
 
-  async remove(id: number){
-    this.cacheManager.del('getCategories');
-    return await this.repository.remove(Number(id));
+  async published(ids: number[], published: boolean){
+    await this.cacheManager.del('getCategories');
+    return await this.repository.published(ids, published);
+  }
+
+  async remove(ids: number[]){
+    await this.cacheManager.del('getCategories');
+    return await this.repository.remove(ids);
   }
   
 }

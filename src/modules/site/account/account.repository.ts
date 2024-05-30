@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaBlogService } from '../../prisma/blog/prisma.service';
 import type { CreateAccountDto, UpdateAccountDto } from './account.dto';
-import { Role } from 'prisma/prisma-client';
+import { Role } from '@prisma-blog/prisma/client';
 
 @Injectable()
 export class AccountRepository {

@@ -18,7 +18,7 @@ export class CreateCollectionDto {
   @IsNotEmpty()
   @MaxLength(255)
   @ApiProperty()
-  imgUrl: string;
+  image: string;
 
   @IsNotEmpty()
   @MaxLength(255)

@@ -5,7 +5,8 @@ export interface Req extends Request{
         reponame: string;
     },
     body: {
+        profileId: number;
         accountId: number;
     }
-    imgUrl: string;
+    image: string;
 }

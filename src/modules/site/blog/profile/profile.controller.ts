@@ -4,7 +4,7 @@ import {
   Param,
   Get,
   Put,
-  NotFoundException, 
+  NotFoundException
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './profile.tdo';
@@ -18,6 +18,12 @@ export class ProfileController {
   @Public()
   @Get(':slug')
   async get(@Param('slug') slug: string) {
+    console.log(slug)
+    const t = new Promise((resolve, reject) => {
+      setTimeout(resolve, 1000, 'foo');
+    });
+
+    await t;
     const profile = await this.profileService.findOne(slug);
     if(!profile) throw new NotFoundException('Perfil não existe');
     return profile;

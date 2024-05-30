@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, NotFoundException, ParseArrayPipe, HttpCode, Query } from '@nestjs/common';
 import { PostService } from './post.service';
 import { msg } from 'src/constants/msgPost';
-import { CreatePostDto } from './post.dto';
-import { UpdatePostDto } from './post.dto';
+import { CreatePostDto, UpdatePostDto } from './post.dto';
 import { Public } from 'src/modules/auth/decorators/public.decorator';
+//import { ApiPaginatedResponse } from '../../../../decorators/paginated.decorator';
+import { PaginatedDto } from '../../../../general.dto/paginated-dto';
 
 @Controller('posts')
 export class PostController {
@@ -12,16 +13,18 @@ export class PostController {
 
   @Post()
   async create(@Body() createPost: CreatePostDto){
+    console.log(createPost)
     return await this.postsService.create(createPost);
   }
 
   @Public()
   @Get()
-  async findAll() {
-    const posts = await this.postsService.findAll();
-
-    //if(posts.length == 0) throw new NotFoundException(msg.postsNotExist);
-  
+  //@ApiPaginatedResponse(CreatePostDto)
+  async findAll( 
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 10):Promise<PaginatedDto<CreatePostDto>>{
+    const posts = await this.postsService.findAll(page, perPage);
+    if(!posts) throw new NotFoundException(msg.postsNotExist);
     return posts;
   }
 
@@ -34,16 +37,25 @@ export class PostController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async update(@Param('id') id: number, @Body() updatePost: UpdatePostDto){
     await this.postsService.update(id, updatePost);
-    return { message: msg.postUpdated, statusCode: 200 };
+  }
+
+  @Put('published/:ids')
+  @HttpCode(204)
+  async published(
+    @Param('ids', new ParseArrayPipe({
+      items: Array<Number>, separator: '[]',
+    })) ids: number,
+    @Body('published') published: boolean){
+    await this.postsService.published(ids[0], published);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async remove(@Param('id') id: number){
     await this.postsService.remove(id);
-    return { message: msg.postDeletedSucess, statusCode: 200 };
-    
   }
 
 }
