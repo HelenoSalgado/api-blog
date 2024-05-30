@@ -41,7 +41,7 @@ async function seed() {
           select: {
             id: true
           }
-        });
+    });
 
     // Cria tipos de grupos e preconecta os grupos de usuários a eles.
     const roles = ['ADMIN', 'AUTHOR', 'STORE'];

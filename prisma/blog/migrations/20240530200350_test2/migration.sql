@@ -5,13 +5,9 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'AUTHOR', 'STORE');
 CREATE TABLE "Account" (
     "id" SERIAL NOT NULL,
     "email" VARCHAR(128) NOT NULL,
-    "provider" VARCHAR(64),
-    "password" VARCHAR(255) NOT NULL,
-    "resetPasswordToken" VARCHAR(255),
     "confirmationCode" VARCHAR(6),
     "confirmed" BOOLEAN NOT NULL DEFAULT false,
     "blocked" BOOLEAN NOT NULL DEFAULT false,
-    "isAdmin" BOOLEAN NOT NULL DEFAULT true,
     "planId" SMALLINT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -23,8 +19,8 @@ CREATE TABLE "Account" (
 CREATE TABLE "Company" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(100) NOT NULL,
-    "logo" VARCHAR(255) NOT NULL,
-    "CNPJ" VARCHAR(100) NOT NULL,
+    "logo" VARCHAR(255),
+    "CNPJ" VARCHAR(100),
     "accountId" SMALLINT NOT NULL,
 
     CONSTRAINT "Company_pkey" PRIMARY KEY ("id")
@@ -37,7 +33,6 @@ CREATE TABLE "Contact" (
     "email" VARCHAR(128) NOT NULL,
     "tel" VARCHAR(17) NOT NULL,
     "celular" VARCHAR(17) NOT NULL,
-    "companyId" SMALLINT NOT NULL,
 
     CONSTRAINT "Contact_pkey" PRIMARY KEY ("id")
 );
@@ -59,7 +54,7 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "firstName" VARCHAR(64) NOT NULL,
     "lastName" VARCHAR(64) NOT NULL,
-    "username" VARCHAR(64) NOT NULL,
+    "username" VARCHAR(64),
     "email" VARCHAR(128) NOT NULL,
     "provider" VARCHAR(64),
     "password" VARCHAR(255) NOT NULL,
@@ -97,7 +92,6 @@ CREATE TABLE "SocialMedia" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(64) NOT NULL,
     "acessLink" VARCHAR(255) NOT NULL,
-    "profileId" SMALLINT NOT NULL,
 
     CONSTRAINT "SocialMedia_pkey" PRIMARY KEY ("id")
 );
@@ -108,7 +102,7 @@ CREATE TABLE "Post" (
     "title" VARCHAR(255) NOT NULL,
     "description" VARCHAR(255),
     "content" TEXT NOT NULL,
-    "imgUrl" VARCHAR(255) NOT NULL,
+    "image" VARCHAR(255) NOT NULL,
     "slug" VARCHAR(255) NOT NULL,
     "published" BOOLEAN NOT NULL DEFAULT false,
     "afterPost" VARCHAR(255),
@@ -151,6 +145,7 @@ CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" VARCHAR(270),
+    "image" VARCHAR(255),
     "published" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -163,7 +158,7 @@ CREATE TABLE "Category" (
 CREATE TABLE "Collection" (
     "id" SERIAL NOT NULL,
     "title" VARCHAR(255) NOT NULL,
-    "imgUrl" VARCHAR(255) NOT NULL,
+    "image" VARCHAR(255) NOT NULL,
     "author" VARCHAR(255) NOT NULL,
     "slug" VARCHAR(255) NOT NULL,
     "published" BOOLEAN NOT NULL DEFAULT false,
@@ -308,6 +303,30 @@ CREATE TABLE "Subscription" (
 );
 
 -- CreateTable
+CREATE TABLE "_CompanyToContact" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_CompanyToSocialMedia" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ContactToProfile" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ProfileToSocialMedia" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "_CategoryToPost" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -317,9 +336,6 @@ CREATE TABLE "_CategoryToPost" (
 CREATE UNIQUE INDEX "Account_email_key" ON "Account"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Contact_companyId_key" ON "Contact"("companyId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
@@ -327,9 +343,6 @@ CREATE UNIQUE INDEX "Profile_slug_key" ON "Profile"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "SocialMedia_profileId_key" ON "SocialMedia"("profileId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Post_slug_key" ON "Post"("slug");
@@ -344,6 +357,30 @@ CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 CREATE UNIQUE INDEX "Collection_slug_key" ON "Collection"("slug");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_CompanyToContact_AB_unique" ON "_CompanyToContact"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_CompanyToContact_B_index" ON "_CompanyToContact"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_CompanyToSocialMedia_AB_unique" ON "_CompanyToSocialMedia"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_CompanyToSocialMedia_B_index" ON "_CompanyToSocialMedia"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ContactToProfile_AB_unique" ON "_ContactToProfile"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ContactToProfile_B_index" ON "_ContactToProfile"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ProfileToSocialMedia_AB_unique" ON "_ProfileToSocialMedia"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ProfileToSocialMedia_B_index" ON "_ProfileToSocialMedia"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_CategoryToPost_AB_unique" ON "_CategoryToPost"("A", "B");
 
 -- CreateIndex
@@ -353,10 +390,7 @@ CREATE INDEX "_CategoryToPost_B_index" ON "_CategoryToPost"("B");
 ALTER TABLE "Account" ADD CONSTRAINT "Account_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Company" ADD CONSTRAINT "Company_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Contact" ADD CONSTRAINT "Contact_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Company" ADD CONSTRAINT "Company_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sendNewlatter" ADD CONSTRAINT "sendNewlatter_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -366,9 +400,6 @@ ALTER TABLE "User" ADD CONSTRAINT "User_accountId_fkey" FOREIGN KEY ("accountId"
 
 -- AddForeignKey
 ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "SocialMedia" ADD CONSTRAINT "SocialMedia_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_collectionId_fkey" FOREIGN KEY ("collectionId") REFERENCES "Collection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -420,6 +451,30 @@ ALTER TABLE "PlanHistory" ADD CONSTRAINT "PlanHistory_planId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CompanyToContact" ADD CONSTRAINT "_CompanyToContact_A_fkey" FOREIGN KEY ("A") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CompanyToContact" ADD CONSTRAINT "_CompanyToContact_B_fkey" FOREIGN KEY ("B") REFERENCES "Contact"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CompanyToSocialMedia" ADD CONSTRAINT "_CompanyToSocialMedia_A_fkey" FOREIGN KEY ("A") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CompanyToSocialMedia" ADD CONSTRAINT "_CompanyToSocialMedia_B_fkey" FOREIGN KEY ("B") REFERENCES "SocialMedia"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ContactToProfile" ADD CONSTRAINT "_ContactToProfile_A_fkey" FOREIGN KEY ("A") REFERENCES "Contact"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ContactToProfile" ADD CONSTRAINT "_ContactToProfile_B_fkey" FOREIGN KEY ("B") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ProfileToSocialMedia" ADD CONSTRAINT "_ProfileToSocialMedia_A_fkey" FOREIGN KEY ("A") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ProfileToSocialMedia" ADD CONSTRAINT "_ProfileToSocialMedia_B_fkey" FOREIGN KEY ("B") REFERENCES "SocialMedia"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CategoryToPost" ADD CONSTRAINT "_CategoryToPost_A_fkey" FOREIGN KEY ("A") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;

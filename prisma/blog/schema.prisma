@@ -27,13 +27,14 @@ model Account {
 }
 
 model Company {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  logo      String?  @db.VarChar(255)
-  CNPJ      String?  @db.VarChar(100)
-  accountId Int      @db.SmallInt
-  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  contact   Contact?
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  logo        String?  @db.VarChar(255)
+  CNPJ        String?  @db.VarChar(100)
+  accountId   Int      @db.SmallInt
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contact     Contact[]
+  socialMedia SocialMedia[]
 }
 
 model Contact {
@@ -42,8 +43,8 @@ model Contact {
   email     String  @db.VarChar(128)
   tel       String  @db.VarChar(17)
   celular   String  @db.VarChar(17)
-  companyId Int     @unique @db.SmallInt
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company[]
+  profile   Profile[]
 }
 
 model sendNewlatter {
@@ -89,18 +90,19 @@ model Profile {
   published   Boolean      @default(true)
   userId      Int          @unique @db.SmallInt
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts       Post[]
+  socialMedia SocialMedia[]
+  contact     Contact[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  posts       Post[]
-  socialMedia SocialMedia?
 }
 
 model SocialMedia {
   id        Int     @id @default(autoincrement())
   name      String  @db.VarChar(64)
   acessLink String  @db.VarChar(255)
-  profileId Int     @unique @db.SmallInt
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile   Profile[]
+  company   Company[]
 }
 
 model Post {
@@ -108,7 +110,7 @@ model Post {
   title         String         @db.VarChar(255)
   description   String?        @db.VarChar(255)
   content       String         @db.Text
-  imgUrl        String         @db.VarChar(255)
+  image         String         @db.VarChar(255)
   slug          String         @unique @db.VarChar(255)
   published     Boolean        @default(false)
   afterPost     String?        @db.VarChar(255)
@@ -150,6 +152,7 @@ model Category {
   id          Int      @id @default(autoincrement())
   name        String   @unique @db.VarChar(255)
   description String?  @db.VarChar(270)
+  image       String?  @db.VarChar(255)
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -161,7 +164,7 @@ model Category {
 model Collection {
   id        Int      @id @default(autoincrement())
   title     String   @db.VarChar(255)
-  imgUrl    String   @db.VarChar(255)
+  image     String   @db.VarChar(255)
   author    String   @db.VarChar(255)
   slug      String   @unique @db.VarChar(255)
   published Boolean  @default(false)
