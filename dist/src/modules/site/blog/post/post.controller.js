@@ -28,7 +28,7 @@ let PostController = class PostController {
     }
     async findAll(page = 1, perPage = 10) {
         const posts = await this.postsService.findAll(page, perPage);
-        if (!posts)
+        if (posts.data.length == 0)
             throw new common_1.NotFoundException(msgPost_1.msg.postsNotExist);
         return posts;
     }

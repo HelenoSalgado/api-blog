@@ -19,9 +19,9 @@ export declare class CategoryController {
         posts: {
             id: number;
             description: string;
-            title: string;
             image: string;
             slug: string;
+            title: string;
         }[];
     } & {
         id: number;

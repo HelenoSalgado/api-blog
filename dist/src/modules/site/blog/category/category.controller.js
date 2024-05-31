@@ -27,7 +27,7 @@ let CategoryController = class CategoryController {
     }
     async findAll(page = 1, perPage = 10) {
         const categories = await this.categoryService.findAll(page, perPage);
-        if (!categories)
+        if (categories.data.length == 0)
             throw new common_1.NotFoundException(msgPost_1.msg.postsNotExist);
         return categories;
     }

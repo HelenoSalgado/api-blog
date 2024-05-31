@@ -22,15 +22,15 @@ export declare class PostController {
     }>;
     findAll(page?: number, perPage?: number): Promise<PaginatedDto<CreatePostDto>>;
     findOne(slug: string): Promise<{
+        profile: {
+            slug: string;
+            name: string;
+            avatar: string;
+        };
         categories: {
             id: number;
             name: string;
         }[];
-        profile: {
-            name: string;
-            slug: string;
-            avatar: string;
-        };
     } & {
         id: number;
         title: string;

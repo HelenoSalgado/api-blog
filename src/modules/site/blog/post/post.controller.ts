@@ -24,7 +24,7 @@ export class PostController {
     @Query('page') page: number = 1,
     @Query('perPage') perPage: number = 10):Promise<PaginatedDto<CreatePostDto>>{
     const posts = await this.postsService.findAll(page, perPage);
-    if(!posts) throw new NotFoundException(msg.postsNotExist);
+    if(posts.data.length == 0) throw new NotFoundException(msg.postsNotExist);
     return posts;
   }
 

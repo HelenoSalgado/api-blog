@@ -22,7 +22,7 @@ export class CategoryController {
     @Query('perPage') perPage: number = 10
   ):Promise<PaginatedDto<CreateCategoryDto>> {
     const categories = await this.categoryService.findAll(page, perPage);
-    if(!categories) throw new NotFoundException(msg.postsNotExist);
+    if(categories.data.length == 0) throw new NotFoundException(msg.postsNotExist);
     return categories;
   }
 
